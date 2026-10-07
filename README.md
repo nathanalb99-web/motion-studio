@@ -13,6 +13,29 @@ Studio motion design Motionova — propulsé par [Remotion](https://www.remotion
 
 Welcome to your Remotion project!
 
+## Motionova916 — film portfolio 9:16
+
+Composition principale : `Motionova916` (1080x1920, 18 s). Tout est dessiné en code (SVG + React), sans image générée.
+
+- `src/iso/` : moteur isométrique (projection yaw/pitch, volumes, ombres, caméra par images clés)
+- `src/islands/` : les 3 îlots du monde (accroche, chaîne de production, offre)
+- `src/overlay/` : typographie animée, titres d'étapes, outro (vagues, logo, CTA)
+- `src/timeline.ts` : tous les timings, en secondes (calés sur le script de voix off)
+- `src/camera.ts` : le plan de caméra unique du film
+- Police Inter servie en local (`public/fonts`, licence OFL)
+- Logos attendus dans `public/` : `motionova-logo-complet-fond-blanc.png`, `motionova-icone-corail-fond-blanc.png`
+
+```console
+# Image fixe
+npx remotion still Motionova916 out/stills/fin.png --frame=531
+
+# Brouillon 540x960, 30 fps
+npx remotion render Motionova916 out/brouillon.mp4 --scale=0.5 --codec=h264
+
+# Master 1080x1920, 60 fps
+npx remotion render Motionova916 out/master.mp4 --props='{"fps":60}' --codec=h264 --crf=18
+```
+
 ## Commands
 
 **Install Dependencies**

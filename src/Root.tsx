@@ -1,56 +1,39 @@
-import { Composition, Folder } from "remotion";
-import { HelloWorld } from "./HelloWorld";
-import { Logo } from "./HelloWorld/Logo";
-import { Title } from "./HelloWorld/Title";
+import { CalculateMetadataFunction, Composition, staticFile } from "remotion";
+import { LOGO_FULL } from "./brand";
+import { Motionova, MotionovaProps } from "./Motionova";
+import { LAYOUTS } from "./layouts";
+import { TOTAL } from "./timeline";
 
-// Each <Composition> is an entry in the sidebar!
+// fps piloté par les props : brouillon 30 fps, master avec --props='{"fps":60}'.
+// La durée suit automatiquement (toutes les animations sont écrites en secondes).
+const calculateMetadata: CalculateMetadataFunction<MotionovaProps> = async ({ props, abortSignal }) => {
+  const fps = props.fps === 60 ? 60 : 30;
+  let hasLogos = false;
+  try {
+    const res = await fetch(staticFile(LOGO_FULL), { method: "HEAD", signal: abortSignal });
+    hasLogos = res.ok && (res.headers.get("content-type") ?? "").startsWith("image/");
+  } catch {
+    hasLogos = false;
+  }
+  return {
+    fps,
+    durationInFrames: Math.round(TOTAL * fps),
+    props: { ...props, fps, hasLogos },
+  };
+};
 
 export const RemotionRoot: React.FC = () => {
+  const L = LAYOUTS["916"];
   return (
-    <>
-      <Folder name="Elements">
-        <Composition
-          id="Logo"
-          component={Logo}
-          durationInFrames={150}
-          fps={30}
-          width={1920}
-          height={1080}
-          defaultProps={{
-            logoColor1: "#91EAE4",
-            logoColor2: "#86A8E7",
-          }}
-        />
-        <Composition
-          id="Title"
-          component={Title}
-          durationInFrames={115}
-          fps={30}
-          width={1920}
-          height={1080}
-          defaultProps={{
-            titleText: "Welcome to Remotion",
-            titleColor: "#000000",
-          }}
-        />
-      </Folder>
-      <Composition
-        // You can take the "id" to render a video:
-        // bunx remotion render HelloWorld
-        id="HelloWorld"
-        component={HelloWorld}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-        // You can override these props for each render:
-        // https://www.remotion.dev/docs/parametrized-rendering
-        defaultProps={{
-          titleText: "Welcome to Remotion",
-          titleColor: "#000000",
-        }}
-      />
-
-    </>
+    <Composition
+      id="Motionova916"
+      component={Motionova}
+      durationInFrames={TOTAL * 30}
+      fps={30}
+      width={L.width}
+      height={L.height}
+      defaultProps={{ layout: "916", fps: 30, hasLogos: false } satisfies MotionovaProps}
+      calculateMetadata={calculateMetadata}
+    />
   );
 };
