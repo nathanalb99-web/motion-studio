@@ -14,10 +14,16 @@ const S = STATIONS_X;
 
 // Déplacements du cube projet sur le tapis (secondes locales à la séquence).
 export const MOVES = [
-  [0.7, 1.1],
-  [1.5, 1.9],
-  [2.4, 2.8],
+  [0.62, 0.98],
+  [1.38, 1.74],
+  [2.14, 2.5],
 ] as const;
+
+// Pendant « Sans une seule réunion », un second projet traverse toute la chaîne d'une traite.
+const RUN = { in: 3.2, t0: 3.3, t1: 4.4 };
+const RUN_FROM = S[0] - 260;
+const RUN_TO = S[3] + 260;
+export const runnerXAt = (t: number) => RUN_FROM + (RUN_TO - RUN_FROM) * tween(t, RUN.t0, RUN.t1, 0, 1, E.inOut);
 
 export const cubeXAt = (t: number) =>
   S[0] + MOVES.reduce((acc, [t0, t1], i) => acc + (S[i + 1] - S[i]) * tween(t, t0, t1, 0, 1, E.inOut), 0);
@@ -32,8 +38,8 @@ const Plinth: React.FC<{ s: number }> = ({ s }) => (
   </>
 );
 
-const Badge: React.FC<{ s: number; n: string; k: number }> = ({ s, n, k }) => (
-  <Billboard at={at(s - 128, -62, PLINTH_H + 4)} scale={k} opacity={k}>
+const Badge: React.FC<{ s: number; n: string; k: number; pulse: number }> = ({ s, n, k, pulse }) => (
+  <Billboard at={at(s - 128, -62, PLINTH_H + 4)} scale={k * (1 + 0.35 * pulse)} opacity={k}>
     <circle r={30} fill={C.coral} />
     <text
       y={9}
@@ -52,9 +58,9 @@ const Badge: React.FC<{ s: number; n: string; k: number }> = ({ s, n, k }) => (
 // --- 01 Brief : ordinateur portable + chrono -----------------------------------
 const Brief: React.FC<{ t: number }> = ({ t }) => {
   const s = S[0];
-  const fill = [0, 1, 2].map((i) => tween(t, 0.12 + i * 0.12, 0.38 + i * 0.12, 0, 1, E.out));
-  const sent = tween(t, 0.58, 0.7, 0, 1);
-  const hand = tween(t, 0.05, 0.75, 0, 360, E.inOut);
+  const fill = [0, 1, 2].map((i) => tween(t, 0.08 + i * 0.1, 0.3 + i * 0.1, 0, 1, E.out));
+  const sent = tween(t, 0.46, 0.56, 0, 1);
+  const hand = tween(t, 0.0, 0.6, 0, 360, E.inOut);
   const form = (
     <g>
       <rect x={10} y={10} width={200} height={130} rx={6} fill={C.bg} />
@@ -113,10 +119,10 @@ const Brief: React.FC<{ t: number }> = ({ t }) => {
 // --- 02 Script : document + tampon « validé » -----------------------------------
 const Script: React.FC<{ t: number }> = ({ t }) => {
   const s = S[1];
-  const down = tween(t, 1.08, 1.24, 0, 1, E.in);
-  const up = tween(t, 1.32, 1.6, 0, 1, E.out);
+  const down = tween(t, 0.98, 1.1, 0, 1, E.in);
+  const up = tween(t, 1.16, 1.4, 0, 1, E.out);
   const lift = 120 * (1 - down) + 120 * up;
-  const mark = tween(t, 1.24, 1.32, 0, 1);
+  const mark = tween(t, 1.1, 1.16, 0, 1);
   const doc = (
     <g>
       <rect x={20} y={20} width={90} height={12} rx={6} fill={C.navy} />
@@ -145,8 +151,8 @@ const Script: React.FC<{ t: number }> = ({ t }) => {
 // --- 03 Animation : écran de montage + enceinte -----------------------------------
 const Animation: React.FC<{ t: number }> = ({ t }) => {
   const s = S[2];
-  const play = tween(t, 1.85, 2.5, 0, 1, E.inOut);
-  const live = tween(t, 1.75, 1.9, 0, 1) * tween(t, 2.5, 2.7, 1, 0);
+  const play = tween(t, 1.7, 2.2, 0, 1, E.inOut);
+  const live = tween(t, 1.62, 1.74, 0, 1) * tween(t, 2.2, 2.4, 1, 0);
   const pulse = 1 + 0.12 * live * Math.abs(Math.sin(t * 14));
   const editor = (
     <g>
@@ -192,9 +198,9 @@ const Animation: React.FC<{ t: number }> = ({ t }) => {
 
 // --- 04 Livraison : 3 formats ---------------------------------------------------
 const FORMATS = [
-  { label: "16:9", x: -150, y: -270, w: 168, h: 96, at: 2.88 },
-  { label: "1:1", x: 34, y: -205, w: 104, h: 104, at: 3.0 },
-  { label: "9:16", x: -96, y: -128, w: 72, h: 128, at: 3.12 },
+  { label: "16:9", x: -150, y: -270, w: 168, h: 96, at: 2.56 },
+  { label: "1:1", x: 34, y: -205, w: 104, h: 104, at: 2.66 },
+  { label: "9:16", x: -96, y: -128, w: 72, h: 128, at: 2.76 },
 ];
 
 const Delivery: React.FC<{ t: number; fps: number }> = ({ t, fps }) => {
@@ -235,11 +241,18 @@ export const PipelineIsland: React.FC = () => {
   const t = useTime();
   const { fps } = useVideoConfig();
   const cubeX = cubeXAt(t);
-  const cubeOut = tween(t, 2.84, 3.08, 1, 0, E.in);
+  const cubeOut = tween(t, 2.52, 2.74, 1, 0, E.in);
   const cubeS = CUBE * cubeOut;
+  const runX = runnerXAt(t);
+  const runS = CUBE * settle(t, RUN.in, fps, 0.3) * tween(t, RUN.t1 - 0.05, RUN.t1 + 0.2, 1, 0, E.in);
+  const pulse = (s: number) => {
+    const d = Math.abs(runX - s);
+    return t > RUN.t0 && t < RUN.t1 + 0.1 ? Math.max(0, 1 - d / 220) : 0;
+  };
   const beltLen = 2180;
   const slat = 54;
-  const shift = ((cubeX % slat) + slat) % slat;
+  const travel = cubeX + (runS > 1 ? runX - RUN_FROM : 0);
+  const shift = ((travel % slat) + slat) % slat;
 
   return (
     <g>
@@ -251,7 +264,7 @@ export const PipelineIsland: React.FC = () => {
       <Delivery t={t} fps={fps} />
       {/* Pastilles devant les stations, avant le tapis qui doit pouvoir les masquer. */}
       {S.map((s, i) => (
-        <Badge key={i} s={s} n={`0${i + 1}`} k={settle(t, 0.1 + i * 0.12, fps)} />
+        <Badge key={i} s={s} n={`0${i + 1}`} k={settle(t, 0.1 + i * 0.12, fps)} pulse={pulse(s)} />
       ))}
 
       <IsoShadow p={at(-beltLen / 2, BELT.y0, 0)} s={v3(beltLen, BELT.y1 - BELT.y0, BELT.h)} opacity={0.18} />
@@ -282,6 +295,21 @@ export const PipelineIsland: React.FC = () => {
           <IsoBox
             p={at(cubeX - cubeS / 2, (BELT.y0 + BELT.y1) / 2 - cubeS / 2, BELT.h)}
             s={v3(cubeS, cubeS, cubeS)}
+            mat={MAT.coral}
+          />
+        </>
+      ) : null}
+      {runS > 1 ? (
+        <>
+          <IsoShadow
+            p={at(runX - runS / 2, (BELT.y0 + BELT.y1) / 2 - runS / 2, BELT.h)}
+            s={v3(runS, runS, runS)}
+            ground={BELT.h}
+            opacity={0.3}
+          />
+          <IsoBox
+            p={at(runX - runS / 2, (BELT.y0 + BELT.y1) / 2 - runS / 2, BELT.h)}
+            s={v3(runS, runS, runS)}
             mat={MAT.coral}
           />
         </>

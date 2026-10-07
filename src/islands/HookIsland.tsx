@@ -33,8 +33,13 @@ const BLOCKS: BlockDef[] = [
   { cx: 200, cy: 90, w: 170, d: 110, layer: 2, mat: MAT.white },
 ];
 
-const LAYER_START = [0.0, 1.12, 1.62];
-const LAYER_STAGGER = [0.07, 0.08, 0.1];
+// La première couche est déjà en train de tomber à l'image 0 : on entre en pleine action.
+const LAYER_START = [-0.32, 0.95, 1.42];
+const LAYER_STAGGER = [0.07, 0.07, 0.09];
+const FALL = { height: [480, 300, 300], dur: 0.36 };
+// Onde de choc corail qui balaie l'écran et chasse les blocs (vitesse en unités/s).
+const SHOCK_SPEED = 1700;
+const SLAB_HALF = 460;
 
 // Lignes de « texte » dessinées sur le dessus d'un bloc (aucun faux texte lisible).
 const TextLines: React.FC<{ w: number; d: number; dark: boolean; seed: number }> = ({ w, d, dark, seed }) => {
@@ -115,28 +120,27 @@ export const HookIsland: React.FC = () => {
   const view = useView();
 
   // --- Blocs : chute, empilement, effondrement --------------------------------
-  const collapseRank = BLOCKS.map((b, i) => ({ i, k: b.layer * 10000 + (b.cx + b.cy) }))
-    .sort((a, b) => b.k - a.k)
-    .map((r) => r.i);
-
   const blocks = BLOCKS.map((b, i) => {
     const order = BLOCKS.filter((o, j) => o.layer === b.layer && j < i).length;
     const t0 = LAYER_START[b.layer] + order * LAYER_STAGGER[b.layer];
-    const fall = tween(t, t0, t0 + 0.42, 1, 0, E.fall);
+    const fall = tween(t, t0, t0 + FALL.dur, 1, 0, E.fall);
     const zLand = SCREEN.h + b.layer * BLOCK_H;
 
-    const c0 = T.collapse + collapseRank.indexOf(i) * 0.028;
-    const push = tween(t, c0, c0 + 0.42, 0, 1, E.out);
-    const drop = tween(t, c0 + 0.1, c0 + 0.6, 0, 1, E.fall);
-    const toX = b.cx >= b.cy;
-    const dx = toX ? push * 760 : 0;
-    const dy = toX ? 0 : push * 760;
+    // L'onde atteint le bloc, le soulève légèrement puis l'éjecte radialement hors de l'île.
+    const dist = Math.hypot(b.cx, b.cy);
+    const c0 = T.collapse + Math.max(0, dist - 40) / SHOCK_SPEED + (2 - b.layer) * 0.02;
+    const push = tween(t, c0, c0 + 0.45, 0, 1, E.out);
+    const kick = 70 * Math.sin(Math.PI * tween(t, c0, c0 + 0.3, 0, 1));
+    const drop = tween(t, c0 + 0.14, c0 + 0.62, 0, 1, E.fall);
+    const nx = dist > 1 ? b.cx / dist : 0.7;
+    const ny = dist > 1 ? b.cy / dist : 0.7;
 
-    const visible = t >= t0 ? tween(t, t0, t0 + 0.12, 0, 1) * tween(t, c0 + 0.32, c0 + 0.55, 1, 0) : 0;
+    const appear = b.layer === 0 ? 1 : tween(t, t0, t0 + 0.08, 0, 1);
+    const visible = t >= t0 ? appear * tween(t, c0 + 0.4, c0 + 0.6, 1, 0) : 0;
     return {
-      x: b.cx - b.w / 2 + dx,
-      y: b.cy - b.d / 2 + dy,
-      z: zLand + fall * 760 - drop * 1500,
+      x: b.cx - b.w / 2 + nx * push * 900,
+      y: b.cy - b.d / 2 + ny * push * 900,
+      z: zLand + fall * FALL.height[b.layer] + kick - drop * 1600,
       w: b.w,
       d: b.d,
       h: BLOCK_H,
@@ -146,11 +150,19 @@ export const HookIsland: React.FC = () => {
     } satisfies Bounds & { mat: Mat; i: number; visible: number };
   }).filter((b) => b.visible > 0.001);
 
+  // Un bloc tombé derrière le bord arrière de l'île passe sous la dalle.
+  const isBehind = (b: Bounds) =>
+    b.z + b.h < 0 && (b.x + b.w < -SLAB_HALF || b.y + b.d < -SLAB_HALF);
+  const behind = paintOrder(blocks.filter(isBehind));
+  const front = blocks.filter((b) => !isBehind(b));
+  const shockR = 40 + SHOCK_SPEED * (t - T.collapse);
+  const shockK = tween(t, T.collapse, T.collapse + 0.5, 0, 1);
+
   // --- Bouton Play ------------------------------------------------------------
-  const playK = settle(t, 3.18, fps, 0.5);
-  const playH = settle(t, 3.3, fps, 0.55);
+  const playK = settle(t, 3.04, fps, 0.5);
+  const playH = settle(t, 3.14, fps, 0.55);
   const r = 112 * playK;
-  const ripple = tween(t, 3.22, 3.95, 0, 1, E.out);
+  const ripple = tween(t, 3.08, 3.8, 0, 1, E.out);
   const chartK = tween(t, 0.15, 1.0, 0, 1, E.out);
 
   const a = (view.yaw * Math.PI) / 180;
@@ -168,7 +180,10 @@ export const HookIsland: React.FC = () => {
     <g>
       {/* Île en lévitation */}
       <IsoBlob c={at(60, 60, -320)} rx={520} ry={520} opacity={0.05} soft />
-      <IsoBox p={at(-460, -460, -44)} s={v3(920, 920, 44)} mat={MAT.slab} />
+      {behind.map((b) => (
+        <IsoBox key={b.i} p={at(b.x, b.y, b.z)} s={v3(b.w, b.d, b.h)} mat={b.mat} opacity={b.visible} />
+      ))}
+      <IsoBox p={at(-SLAB_HALF, -SLAB_HALF, -44)} s={v3(SLAB_HALF * 2, SLAB_HALF * 2, 44)} mat={MAT.slab} />
       <IsoShadow p={at(-SCREEN.w / 2, -SCREEN.d / 2, 0)} s={v3(SCREEN.w, SCREEN.d, SCREEN.h)} opacity={0.2} />
       <IsoBox
         p={at(-SCREEN.w / 2, -SCREEN.d / 2, 0)}
@@ -184,10 +199,17 @@ export const HookIsland: React.FC = () => {
         </Plane>
       ) : null}
 
-      {blocks.map((b) => (
+      {shockK > 0 && shockK < 1 ? (
+        <Plane origin={at(0, 0, SCREEN.h + 0.5)} u={AX.X} v={AX.Y}>
+          <circle r={shockR} fill="none" stroke={C.coral} strokeWidth={14} opacity={1 - shockK} />
+          <circle r={Math.max(0, shockR - 70)} fill="none" stroke={C.coral2} strokeWidth={6} opacity={(1 - shockK) * 0.7} />
+        </Plane>
+      ) : null}
+
+      {front.map((b) => (
         <IsoShadow key={`s${b.i}`} p={at(b.x, b.y, b.z)} s={v3(b.w, b.d, b.h)} ground={SCREEN.h} opacity={0.22 * b.visible} />
       ))}
-      {paintOrder(blocks).map((b) => (
+      {paintOrder(front).map((b) => (
         <IsoBox
           key={b.i}
           p={at(b.x, b.y, b.z)}

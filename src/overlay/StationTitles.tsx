@@ -3,12 +3,13 @@ import { C } from "../brand";
 import { KineticText } from "./KineticText";
 import { useTime } from "../anim";
 
-// Étapes de la chaîne, en secondes locales (la séquence démarre à 4.72 s).
+// Étapes de la chaîne, en secondes locales (la séquence démarre à STATIONS_AT).
+export const STATIONS_AT = 4.74;
 export const STEPS = [
   { at: 0, n: "01", title: "Brief", sub: "10 min en ligne" },
-  { at: 0.83, n: "02", title: "Script", sub: "Validé par vous" },
-  { at: 1.63, n: "03", title: "Animation", sub: "Voix off + sound design" },
-  { at: 2.48, n: "04", title: "Livraison", sub: "Tous les formats" },
+  { at: 0.71, n: "02", title: "Script", sub: "Validé par vous" },
+  { at: 1.46, n: "03", title: "Animation", sub: "Voix off + sound design" },
+  { at: 2.21, n: "04", title: "Livraison", sub: "Tous les formats" },
 ];
 
 export const StationTitles: React.FC<{ end: number; top: number; titleSize: number }> = ({ end, top, titleSize }) => {

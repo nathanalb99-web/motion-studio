@@ -10,12 +10,12 @@ import { Waves } from "./Waves";
 export const END_LINE = [[{ text: "Votre produit," }], [{ text: "enfin" }, { text: "évident.", color: C.navy, wave: true }]];
 
 // Secondes locales (la séquence démarre à T.outro = 14.8 s).
-const WAVES_AT = 0.55;
-const LINE_AT = 1.05;
-const LOGO_AT = 1.55;
-const CTA_AT = 1.9;
-const URL_AT = 2.1;
-const CLICK_AT = 2.55;
+const WAVES_AT = 0.78;
+const LINE_AT = 1.22;
+const LOGO_AT = 1.66;
+const CTA_AT = 1.95;
+const URL_AT = 2.12;
+const CLICK_AT = 2.6;
 
 const Cursor: React.FC = () => (
   <svg width={64} height={78} viewBox="0 0 64 78">
@@ -27,7 +27,7 @@ export const Outro: React.FC<{ hasLogos: boolean; top: number }> = ({ hasLogos, 
   const t = useTime();
   const { fps, height } = useVideoConfig();
 
-  const rise = (i: number) => tween(t, WAVES_AT + i * 0.09, WAVES_AT + 0.62 + i * 0.09, height + 160, -220, E.inOut);
+  const rise = (i: number) => tween(t, WAVES_AT + i * 0.08, WAVES_AT + 0.55 + i * 0.08, height + 160, -220, E.inOut);
   const drift = t * 1.6;
 
   const logo = settle(t, LOGO_AT, fps, 0.5);
@@ -52,7 +52,7 @@ export const Outro: React.FC<{ hasLogos: boolean; top: number }> = ({ hasLogos, 
           { baseY: rise(2), amp: 26, length: 900, phase: drift + 4, fill: "url(#brandFill)" },
         ]}
       />
-      {t > WAVES_AT + 0.9 ? (
+      {t > WAVES_AT + 0.8 ? (
         <Waves
           layers={[
             { baseY: height - 250, amp: 22, length: 820, phase: drift * 1.3, fill: C.white, opacity: 0.1 * tween(t, 1.3, 1.8, 0, 1) },

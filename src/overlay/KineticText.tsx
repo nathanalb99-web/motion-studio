@@ -104,7 +104,7 @@ export const KineticText: React.FC<{
                 {seg.wave ? (
                   <span style={{ position: "relative", display: "inline-block" }}>
                     {nodes}
-                    <WaveUnderline k={waveK} color={seg.color ?? C.coral} />
+                    {waveK > 0.005 ? <WaveUnderline k={waveK} color={seg.color ?? C.coral} /> : null}
                   </span>
                 ) : (
                   nodes
