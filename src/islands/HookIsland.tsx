@@ -5,7 +5,7 @@ import { C, MAT, Mat } from "../brand";
 import { AX, Bounds, paintOrder, v3 } from "../iso/math";
 import { IsoBlob, IsoBox, IsoCylinder, IsoShadow, Plane } from "../iso/primitives";
 import { useView } from "../iso/World";
-import { ISLAND, T } from "../timeline";
+import { BEAT, ISLAND, T } from "../timeline";
 
 const O = ISLAND.hook;
 const at = (x: number, y: number, z: number) => v3(O.x + x, O.y + y, O.z + z);
@@ -34,8 +34,10 @@ const BLOCKS: BlockDef[] = [
 ];
 
 // La première couche est déjà en train de tomber à l'image 0 : on entre en pleine action.
-const LAYER_START = [-0.32, 0.95, 1.42];
-const LAYER_STAGGER = [0.07, 0.07, 0.09];
+// Couche 2 : premier impact sur le 1er temps de la montée (2,49 s).
+// Couche 3 : dernier impact pile sur « comprenne ».
+const LAYER_STAGGER = [0.07, 0.07, 0.06];
+const LAYER_START = [-0.32, BEAT.build - 0.36, T.comprenne - 0.36 - 2 * LAYER_STAGGER[2]];
 const FALL = { height: [480, 300, 300], dur: 0.36 };
 // Onde de choc corail qui balaie l'écran et chasse les blocs (vitesse en unités/s).
 const SHOCK_SPEED = 1700;
@@ -159,10 +161,10 @@ export const HookIsland: React.FC = () => {
   const shockK = tween(t, T.collapse, T.collapse + 0.5, 0, 1);
 
   // --- Bouton Play ------------------------------------------------------------
-  const playK = settle(t, 3.04, fps, 0.5);
-  const playH = settle(t, 3.14, fps, 0.55);
+  const playK = settle(t, T.playRise, fps, 0.45);
+  const playH = settle(t, T.playRise + 0.08, fps, 0.5);
   const r = 112 * playK;
-  const ripple = tween(t, 3.08, 3.8, 0, 1, E.out);
+  const ripple = tween(t, T.playRise + 0.04, T.playRise + 0.7, 0, 1, E.out);
   const chartK = tween(t, 0.15, 1.0, 0, 1, E.out);
 
   const a = (view.yaw * Math.PI) / 180;

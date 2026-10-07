@@ -11,8 +11,10 @@ export type Layout = {
   textTop: number;
   hero: number;
   title: number;
+  // Bas de la pastille de sous-titres (au-dessus de l'interface TikTok / Reels).
+  subtitleBottom: number;
 };
 
 export const LAYOUTS: Record<LayoutId, Layout> = {
-  "916": { width: 1080, height: 1920, zoom: 1, textTop: 360, hero: 104, title: 164 },
+  "916": { width: 1080, height: 1920, zoom: 1, textTop: 360, hero: 104, title: 164, subtitleBottom: 1570 },
 };

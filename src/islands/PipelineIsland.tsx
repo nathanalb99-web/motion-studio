@@ -5,22 +5,25 @@ import { C, MAT } from "../brand";
 import { INTER } from "../fonts";
 import { v3 } from "../iso/math";
 import { Billboard, IsoBlob, IsoBox, IsoCylinder, IsoShadow } from "../iso/primitives";
-import { BELT, CUBE, ISLAND, STATIONS_X } from "../timeline";
+import { BEAT, BELT, CUBE, ISLAND, STATIONS_X, T } from "../timeline";
 
 const O = ISLAND.pipeline;
 const at = (x: number, y: number, z: number) => v3(O.x + x, O.y + y, O.z + z);
 const PLINTH_H = 24;
 const S = STATIONS_X;
 
-// Déplacements du cube projet sur le tapis (secondes locales à la séquence).
+// Les temps de cette séquence sont locaux : 0 = T.pipeline (sortie du cube projet).
+const L = (abs: number) => abs - T.pipeline;
+
+// Le cube arrive à chaque station pile sur le mot prononcé (script, animation, livraison).
 export const MOVES = [
-  [0.62, 0.98],
-  [1.38, 1.74],
-  [2.14, 2.5],
+  [L(T.script) - 0.26, L(T.script)],
+  [L(T.animation) - 0.28, L(T.animation)],
+  [L(T.livraison) - 0.32, L(T.livraison)],
 ] as const;
 
-// Pendant « Sans une seule réunion », un second projet traverse toute la chaîne d'une traite.
-const RUN = { in: 3.2, t0: 3.3, t1: 4.4 };
+// Sur « Sans une seule réunion », un second projet traverse toute la chaîne d'une traite.
+const RUN = { in: L(T.noMeeting) - 0.05, t0: L(T.noMeeting), t1: L(T.noMeeting) + 0.72 };
 const RUN_FROM = S[0] - 260;
 const RUN_TO = S[3] + 260;
 export const runnerXAt = (t: number) => RUN_FROM + (RUN_TO - RUN_FROM) * tween(t, RUN.t0, RUN.t1, 0, 1, E.inOut);
@@ -58,9 +61,10 @@ const Badge: React.FC<{ s: number; n: string; k: number; pulse: number }> = ({ s
 // --- 01 Brief : ordinateur portable + chrono -----------------------------------
 const Brief: React.FC<{ t: number }> = ({ t }) => {
   const s = S[0];
-  const fill = [0, 1, 2].map((i) => tween(t, 0.08 + i * 0.1, 0.3 + i * 0.1, 0, 1, E.out));
-  const sent = tween(t, 0.46, 0.56, 0, 1);
-  const hand = tween(t, 0.0, 0.6, 0, 360, E.inOut);
+  const b0 = L(T.brief);
+  const fill = [0, 1, 2].map((i) => tween(t, b0 + i * 0.07, b0 + 0.18 + i * 0.07, 0, 1, E.out));
+  const sent = tween(t, b0 + 0.3, b0 + 0.36, 0, 1);
+  const hand = tween(t, b0 - 0.1, b0 + 0.4, 0, 360, E.inOut);
   const form = (
     <g>
       <rect x={10} y={10} width={200} height={130} rx={6} fill={C.bg} />
@@ -119,10 +123,11 @@ const Brief: React.FC<{ t: number }> = ({ t }) => {
 // --- 02 Script : document + tampon « validé » -----------------------------------
 const Script: React.FC<{ t: number }> = ({ t }) => {
   const s = S[1];
-  const down = tween(t, 0.98, 1.1, 0, 1, E.in);
-  const up = tween(t, 1.16, 1.4, 0, 1, E.out);
+  const s0 = L(T.script);
+  const down = tween(t, s0 + 0.02, s0 + 0.12, 0, 1, E.in);
+  const up = tween(t, s0 + 0.18, s0 + 0.4, 0, 1, E.out);
   const lift = 120 * (1 - down) + 120 * up;
-  const mark = tween(t, 1.1, 1.16, 0, 1);
+  const mark = tween(t, s0 + 0.12, s0 + 0.17, 0, 1);
   const doc = (
     <g>
       <rect x={20} y={20} width={90} height={12} rx={6} fill={C.navy} />
@@ -151,8 +156,9 @@ const Script: React.FC<{ t: number }> = ({ t }) => {
 // --- 03 Animation : écran de montage + enceinte -----------------------------------
 const Animation: React.FC<{ t: number }> = ({ t }) => {
   const s = S[2];
-  const play = tween(t, 1.7, 2.2, 0, 1, E.inOut);
-  const live = tween(t, 1.62, 1.74, 0, 1) * tween(t, 2.2, 2.4, 1, 0);
+  const a0 = L(T.animation);
+  const play = tween(t, a0, a0 + 0.42, 0, 1, E.inOut);
+  const live = tween(t, a0 - 0.08, a0 + 0.02, 0, 1) * tween(t, a0 + 0.42, a0 + 0.6, 1, 0);
   const pulse = 1 + 0.12 * live * Math.abs(Math.sin(t * 14));
   const editor = (
     <g>
@@ -198,9 +204,10 @@ const Animation: React.FC<{ t: number }> = ({ t }) => {
 
 // --- 04 Livraison : 3 formats ---------------------------------------------------
 const FORMATS = [
-  { label: "16:9", x: -150, y: -270, w: 168, h: 96, at: 2.56 },
-  { label: "1:1", x: 34, y: -205, w: 104, h: 104, at: 2.66 },
-  { label: "9:16", x: -96, y: -128, w: 72, h: 128, at: 2.76 },
+  { label: "16:9", x: -150, y: -270, w: 168, h: 96, at: L(T.livraison) + 0.1 },
+  { label: "1:1", x: 34, y: -205, w: 104, h: 104, at: L(T.livraison) + 0.26 },
+  // Dernier format sur la caisse claire de 9,43 s.
+  { label: "9:16", x: -96, y: -128, w: 72, h: 128, at: L(BEAT.snare[4]) },
 ];
 
 const Delivery: React.FC<{ t: number; fps: number }> = ({ t, fps }) => {
@@ -241,7 +248,7 @@ export const PipelineIsland: React.FC = () => {
   const t = useTime();
   const { fps } = useVideoConfig();
   const cubeX = cubeXAt(t);
-  const cubeOut = tween(t, 2.52, 2.74, 1, 0, E.in);
+  const cubeOut = tween(t, L(T.livraison) + 0.02, L(T.livraison) + 0.2, 1, 0, E.in);
   const cubeS = CUBE * cubeOut;
   const runX = runnerXAt(t);
   const runS = CUBE * settle(t, RUN.in, fps, 0.3) * tween(t, RUN.t1 - 0.05, RUN.t1 + 0.2, 1, 0, E.in);

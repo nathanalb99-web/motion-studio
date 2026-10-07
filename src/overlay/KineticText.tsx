@@ -4,7 +4,8 @@ import { E, settle, tween, useTime } from "../anim";
 import { C } from "../brand";
 import { INTER } from "../fonts";
 
-export type Seg = { text: string; color?: string; wave?: boolean };
+// punch : le mot-clé entre avec un impact (le masque part de 135 % et se pose sans rebond).
+export type Seg = { text: string; color?: string; wave?: boolean; punch?: boolean };
 
 // Soulignement en vague (signature du hero motionova.fr), tracé au fil de l'eau.
 const WaveUnderline: React.FC<{ k: number; color: string }> = ({ k, color }) => (
@@ -35,6 +36,8 @@ export const KineticText: React.FC<{
   inAt?: number;
   outAt?: number;
   stagger?: number;
+  // Instant d'entrée de chaque mot (secondes locales), pour caler la typo sur la voix.
+  times?: number[];
   // Durée d'entrée de chaque mot, en secondes.
   dur?: number;
   tracking?: number;
@@ -48,6 +51,7 @@ export const KineticText: React.FC<{
   inAt = 0,
   outAt,
   stagger = 0.055,
+  times,
   dur = 0.42,
   tracking = -0.045,
   lineHeight = 1.02,
@@ -75,7 +79,9 @@ export const KineticText: React.FC<{
             const first = index;
             const nodes = words.map((word, wi) => {
               const i = index++;
-              const p = settle(t, inAt + i * stagger, fps, dur);
+              const start = times?.[i] ?? inAt + i * stagger;
+              const p = settle(t, start, fps, dur);
+              const impact = seg.punch ? 1 + 0.35 * (1 - settle(t, start, fps, 0.32)) : 1;
               const q = outAt === undefined ? 0 : tween(t, outAt + i * 0.02, outAt + 0.2 + i * 0.02, 0, 1, E.in);
               const y = (1 - p) * 135 - q * 135;
               return (
@@ -88,6 +94,8 @@ export const KineticText: React.FC<{
                       verticalAlign: "top",
                       padding: "0.16em 0.06em 0.2em",
                       margin: "-0.16em -0.06em -0.2em",
+                      transform: impact !== 1 ? `scale(${impact})` : undefined,
+                      transformOrigin: "50% 80%",
                     }}
                   >
                     <span style={{ display: "inline-block", transform: `translateY(${y}%)`, color: seg.color }}>{word}</span>
@@ -95,8 +103,9 @@ export const KineticText: React.FC<{
                 </React.Fragment>
               );
             });
+            const firstAt = times?.[first] ?? inAt + first * stagger;
             const waveK =
-              tween(t, inAt + first * stagger + 0.25, inAt + first * stagger + 0.75, 0, 1, E.out) *
+              tween(t, firstAt + 0.12, firstAt + 0.55, 0, 1, E.out) *
               (outAt === undefined ? 1 : tween(t, outAt, outAt + 0.15, 1, 0));
             return (
               <React.Fragment key={si}>

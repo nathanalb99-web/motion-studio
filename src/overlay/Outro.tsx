@@ -3,19 +3,27 @@ import { AbsoluteFill, Img, staticFile, useVideoConfig } from "remotion";
 import { E, settle, tween, useTime } from "../anim";
 import { C, LOGO_FULL } from "../brand";
 import { INTER } from "../fonts";
+import { BEAT, T, WORDS } from "../timeline";
 import { KineticText } from "./KineticText";
 import { Waves } from "./Waves";
 
-// Phrase de fin retenue (option 2) : elle referme la boucle ouverte par l'accroche.
-export const END_LINE = [[{ text: "Votre produit," }], [{ text: "enfin" }, { text: "évident.", color: C.navy, wave: true }]];
+// Phrase de fin, telle que prononcée par la voix off.
+export const END_LINE = [
+  [{ text: "Rendez votre" }],
+  [{ text: "produit" }, { text: "évident.", color: C.navy, wave: true, punch: true }],
+];
 
-// Secondes locales (la séquence démarre à T.outro = 14.8 s).
-const WAVES_AT = 0.78;
-const LINE_AT = 1.22;
-const LOGO_AT = 1.66;
-const CTA_AT = 1.95;
-const URL_AT = 2.12;
-const CLICK_AT = 2.6;
+// Secondes locales : la séquence démarre avec la bascule corail (T.waves).
+const L = (abs: number) => abs - T.waves;
+const WAVES_AT = 0;
+// Chaque mot de la phrase de fin apparaît quand la voix le prononce.
+const LINE_TIMES = ["Rendez", "votre", "produit", "évident."].map((w) => L(WORDS.find((x) => x.s >= T.rendez - 0.01 && x.w === w)!.s) - 0.06);
+const EVIDENT_AT = L(T.evident);
+const LOGO_AT = L(T.voiceEnd) - 0.2;
+const CTA_AT = L(T.voiceEnd) - 0.04;
+const URL_AT = L(T.voiceEnd) + 0.1;
+// Clic sur le bouton calé sur la caisse claire de 13,22 s.
+const CLICK_AT = L(BEAT.snare[7]);
 
 const Cursor: React.FC = () => (
   <svg width={64} height={78} viewBox="0 0 64 78">
@@ -28,6 +36,9 @@ export const Outro: React.FC<{ hasLogos: boolean; top: number }> = ({ hasLogos, 
   const { fps, height } = useVideoConfig();
 
   const rise = (i: number) => tween(t, WAVES_AT + i * 0.08, WAVES_AT + 0.55 + i * 0.08, height + 160, -220, E.inOut);
+  // Sur « évident » : une vague blanche balaie l'écran de bas en haut.
+  const burst = tween(t, EVIDENT_AT - 0.04, EVIDENT_AT + 0.42, height + 200, -260, E.out);
+  const burstOpacity = tween(t, EVIDENT_AT + 0.1, EVIDENT_AT + 0.5, 0.28, 0);
   const drift = t * 1.6;
 
   const logo = settle(t, LOGO_AT, fps, 0.5);
@@ -52,6 +63,9 @@ export const Outro: React.FC<{ hasLogos: boolean; top: number }> = ({ hasLogos, 
           { baseY: rise(2), amp: 26, length: 900, phase: drift + 4, fill: "url(#brandFill)" },
         ]}
       />
+      {t > EVIDENT_AT - 0.05 && burstOpacity > 0 ? (
+        <Waves layers={[{ baseY: burst, amp: 40, length: 700, phase: drift * 2, fill: C.white, opacity: burstOpacity }]} />
+      ) : null}
       {t > WAVES_AT + 0.8 ? (
         <Waves
           layers={[
@@ -62,7 +76,7 @@ export const Outro: React.FC<{ hasLogos: boolean; top: number }> = ({ hasLogos, 
       ) : null}
 
       <div style={{ position: "absolute", top, left: 60, right: 60 }}>
-        <KineticText lines={END_LINE} size={128} color={C.white} inAt={LINE_AT} stagger={0.07} />
+        <KineticText lines={END_LINE} size={112} color={C.white} times={LINE_TIMES} dur={0.36} />
       </div>
 
       <div
