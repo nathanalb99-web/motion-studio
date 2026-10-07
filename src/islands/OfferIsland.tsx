@@ -89,7 +89,7 @@ const priceParts = (n: number) => {
   return v >= 1000 ? [String(Math.floor(v / 1000)), String(v % 1000).padStart(3, "0")] : [String(v)];
 };
 
-const Card: React.FC<{ t: number; fps: number }> = ({ t, fps }) => {
+const Card: React.FC<{ t: number; fps: number; base: number }> = ({ t, fps, base }) => {
   const rise = settle(t, CARD_AT, fps, 0.45);
   const h = CARD.h * rise;
   const show = (s: number) => tween(t, s, s + 0.22, 0, 1, E.out);
@@ -155,9 +155,9 @@ const Card: React.FC<{ t: number; fps: number }> = ({ t, fps }) => {
   if (h < 1) return null;
   return (
     <>
-      <IsoShadow p={at(-CARD.w / 2, -CARD.d / 2, PLINTH_H)} s={v3(CARD.w, CARD.d, h)} ground={PLINTH_H} opacity={0.18} />
+      <IsoShadow p={at(-CARD.w / 2, -CARD.d / 2, base)} s={v3(CARD.w, CARD.d, h)} ground={base} opacity={0.18} />
       <IsoBox
-        p={at(-CARD.w / 2, -CARD.d / 2, PLINTH_H)}
+        p={at(-CARD.w / 2, -CARD.d / 2, base)}
         s={v3(CARD.w, CARD.d, h)}
         mat={{ top: "#FFFFFF", left: "#FFFFFF", right: "#DDE3EE" }}
         left={
@@ -179,6 +179,8 @@ export const OfferIsland: React.FC = () => {
   const { fps } = useVideoConfig();
   const merge = tween(t, MERGE, MERGE + 0.22, 0, 1, E.inOut);
   const labelsOut = tween(t, MERGE - 0.06, MERGE + 0.06, 1, 0);
+  // Virage de couleur bref : on évite les teintes intermédiaires ternes entre corail et bleu nuit.
+  const tint = tween(t, MERGE, MERGE + 0.07, 0, 1);
 
   const slabs = GUARANTEES.map((g, i) => {
     const fall = tween(t, DROP[i], DROP[i] + 0.3, 1, 0, E.fall);
@@ -209,13 +211,14 @@ export const OfferIsland: React.FC = () => {
             key={s.i}
             p={at(-SLAB.w / 2, -SLAB.d / 2, s.z)}
             s={v3(SLAB.w, SLAB.d, s.h)}
-            mat={mix(s.g.mat, MAT.navy, merge)}
+            mat={mix(s.g.mat, MAT.navy, tint)}
             opacity={s.visible}
             left={labelsOut > 0 ? <Label g={s.g} opacity={labelsOut} /> : null}
           />
         ) : null,
       )}
-      <Card t={t} fps={fps} />
+      {/* La carte sort toujours du sommet de la pile, même pendant qu'elle s'écrase. */}
+      <Card t={t} fps={fps} base={Math.max(PLINTH_H, ...slabs.filter((s) => s.visible > 0).map((s) => s.z + s.h))} />
     </g>
   );
 };
