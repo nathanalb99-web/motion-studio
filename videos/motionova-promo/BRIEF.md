@@ -8,7 +8,7 @@ aspect: "16:9"
 language: fr
 audience: "Fondateurs de SaaS et startups, débordés, qui détestent perdre du temps en réunions et en devis"
 length: 30
-angle: "Hook stat 91 % → douleur du fondateur (réunions, devis) → produit génial mais incompris → Motionova transforme → process 100 % en ligne → zéro réunion / prix fixe / délai → CTA"
+angle: "Hook 91 % → douleurs (visiteurs qui repartent, leads perdus, démos à répéter) → « Chez Motionova, on règle ça » → vidéo claire : ils comprennent, cliquent, s'inscrivent → brief 10 min, on gère tout → Zéro call / prix fixe / délai → CTA"
 style_preset: brand-native (motionova.fr design system)
 ---
 
@@ -38,3 +38,9 @@ Site motionova.fr (lu depuis le code source du projet Lovable "Pixel Perfect Rep
 ## Customizations
 - Pas de sous-titres karaoké : la typo cinétique porte les mots-clés.
 - Transitions : coupes sur le beat + balayages roses (wipes) au niveau racine.
+
+## Révision v3 (demande client)
+- « Zéro réunion » remplacé par « Zéro call » (voix et écran).
+- Ajout des douleurs clients, en particulier la perte de leads, et de « Chez Motionova, on règle ça ».
+- Script choisi par le client parmi deux finalistes (atelier : 4 rédacteurs, 3 juges, synthèse).
+- Timing centralisé dans `videos/motionova-timing.json` ; `videos/tools/retime.py` réapplique les repères mot à mot aux deux formats.

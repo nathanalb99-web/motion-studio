@@ -1,0 +1,21 @@
+{
+  "_comment": "Single source of truth for the Motionova 30s promo timing (global seconds). Cue values are PROVISIONAL estimates until the final VO is transcribed; run tools/retime.py after editing.",
+  "duration": 30,
+  "vo": { "start": 0.3, "duration": 25.4, "end": 25.6 },
+  "scenes": [
+    { "id": "01-hook",     "start": 0.0,   "end": 4.30,  "cues": { "n91": 0.82, "pct": 1.38, "des": 1.44, "entreprises": 1.58, "utilisent": 2.2, "la": 2.62, "video": 2.76, "comme": 3.14, "outil": 3.28, "marketing": 3.5 } },
+    { "id": "02-visitors", "start": 4.30,  "end": 7.95,  "cues": { "et_vous": 4.45, "vos_visiteurs": 5.25, "arrivent": 5.75, "ne_comprennent_pas": 6.3, "repartent": 7.2 } },
+    { "id": "03-leads",    "start": 7.95,  "end": 12.00, "cues": { "autant": 8.2, "leads_perdus": 8.75, "vous_reexpliquez": 9.75, "tout": 10.45, "demo_apres_demo": 10.9, "demo2": 11.5 } },
+    { "id": "04-reveal",   "start": 12.00, "end": 17.25, "cues": { "chez": 12.2, "motionova": 12.55, "on_regle_ca": 13.05, "video_claire": 14.0, "claire": 14.45, "comprennent": 15.2, "cliquent": 15.9, "inscrivent": 16.5 } },
+    { "id": "05-process",  "start": 17.25, "end": 19.85, "cues": { "dix_minutes": 17.45, "brief": 18.05, "on_gere_tout": 18.75 } },
+    { "id": "06-offer",    "start": 19.85, "end": 23.00, "cues": { "zero": 20.0, "call": 20.35, "prix": 20.95, "fixe": 21.15, "livree": 21.6, "des": 21.95, "cinq_jours": 22.2 } },
+    { "id": "07-end",      "start": 23.00, "end": 30.00, "cues": { "motionova": 23.2, "nova": 23.55, "rendez": 23.95, "votre": 24.2, "produit": 24.45, "evident": 24.95, "vo_end": 25.6 } }
+  ],
+  "wipes": [
+    { "id": "wipe-a", "cut": 4.30,  "dir": 1,  "panel": "pink" },
+    { "id": "wipe-b", "cut": 7.95,  "dir": -1, "panel": "pink" },
+    { "id": "wipe-c", "cut": 17.25, "dir": 1,  "panel": "navy" },
+    { "id": "wipe-d", "cut": 19.85, "dir": -1, "panel": "pink" },
+    { "id": "wipe-e", "cut": 23.00, "dir": 1,  "panel": "navy" }
+  ]
+}

@@ -17,27 +17,28 @@
   </style>
 
   <div id="root" data-composition-id="transitions" data-width="1920" data-height="1080">
-            <div id="wipe-a" class="wipe clip" data-start="4.0" data-duration="0.7" data-track-index="0">
+    <!-- WIPES:BEGIN -->
+      <div id="wipe-a" class="wipe clip" data-start="4.0" data-duration="0.7" data-track-index="0">
         <div id="wipe-a-panel" data-layout-allow-overflow class="wipe-panel wipe-pink"></div>
         <div id="wipe-a-trail" data-layout-allow-overflow class="wipe-trail wipe-navy"></div>
       </div>
-      <div id="wipe-b" class="wipe clip" data-start="7.8" data-duration="0.7" data-track-index="0">
+      <div id="wipe-b" class="wipe clip" data-start="7.65" data-duration="0.7" data-track-index="0">
         <div id="wipe-b-panel" data-layout-allow-overflow class="wipe-panel wipe-pink"></div>
         <div id="wipe-b-trail" data-layout-allow-overflow class="wipe-trail wipe-navy"></div>
       </div>
-      <div id="wipe-c" class="wipe clip" data-start="14.9" data-duration="0.7" data-track-index="0">
+      <div id="wipe-c" class="wipe clip" data-start="16.95" data-duration="0.7" data-track-index="0">
         <div id="wipe-c-panel" data-layout-allow-overflow class="wipe-panel wipe-navy"></div>
         <div id="wipe-c-trail" data-layout-allow-overflow class="wipe-trail wipe-pink"></div>
       </div>
-      <div id="wipe-d" class="wipe clip" data-start="19.0" data-duration="0.7" data-track-index="0">
+      <div id="wipe-d" class="wipe clip" data-start="19.55" data-duration="0.7" data-track-index="0">
         <div id="wipe-d-panel" data-layout-allow-overflow class="wipe-panel wipe-pink"></div>
         <div id="wipe-d-trail" data-layout-allow-overflow class="wipe-trail wipe-navy"></div>
       </div>
-      <div id="wipe-e" class="wipe clip" data-start="22.4" data-duration="0.7" data-track-index="0">
+      <div id="wipe-e" class="wipe clip" data-start="22.7" data-duration="0.7" data-track-index="0">
         <div id="wipe-e-panel" data-layout-allow-overflow class="wipe-panel wipe-navy"></div>
         <div id="wipe-e-trail" data-layout-allow-overflow class="wipe-trail wipe-pink"></div>
       </div>
-
+      <!-- WIPES:END -->
   </div>
 
   <script>
@@ -54,11 +55,13 @@
         tl.fromTo(trail, { x: -3200 * d, skewX: -14 }, { x: -1500 * d, skewX: -14, duration: 0.3, ease: "power3.out" }, cut - 0.28);
         tl.to(trail, { x: 3200 * d, duration: 0.34, ease: "power3.in" }, cut + 0.04);
       }
+      // WIPES:BEGIN
       wipe("wipe-a", 4.3, 1);
-      wipe("wipe-b", 8.1, -1);
-      wipe("wipe-c", 15.2, 1);
-      wipe("wipe-d", 19.3, -1);
-      wipe("wipe-e", 22.7, 1);
+      wipe("wipe-b", 7.95, -1);
+      wipe("wipe-c", 17.25, 1);
+      wipe("wipe-d", 19.85, -1);
+      wipe("wipe-e", 23.0, 1);
+      // WIPES:END
       window.__timelines["transitions"] = tl;
     })();
   </script>
