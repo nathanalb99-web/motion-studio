@@ -19,14 +19,10 @@
       position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
       display: flex; align-items: center; justify-content: center; gap: 44px;
     }
-    #f4-icon {
-      width: 170px; height: 170px; border-radius: 48px; background: #ffffff;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 40px 80px -30px rgba(15, 23, 43, 0.45);
-    }
-    #f4-word { display: flex; font-size: 168px; font-weight: 900; letter-spacing: -0.055em; line-height: 1.1; }
-    .f4-ch-mask { display: block; overflow: hidden; padding-bottom: 12px; }
-    .f4-ch { display: block; }
+    #f4-lock { position: relative; width: 1297px; height: 178px; }
+    #f4-icon { position: absolute; left: 0; top: 0; width: 178px; height: 178px; overflow: visible; }
+    #f4-wm { position: absolute; left: 230px; top: 9px; width: 1066px; height: 171px; }
+    #f4-wm img { display: block; width: 100%; height: 100%; }
     #f4-player {
       position: absolute; left: 430px; top: 290px; width: 1060px; height: 600px; border-radius: 40px; background: #ffffff;
       padding: 20px; box-shadow: 0 60px 120px -40px rgba(15, 23, 43, 0.6);
@@ -101,15 +97,12 @@
       </div>
 
       <div id="f4-logo">
-        <div id="f4-icon">
-          <svg width="104" height="104" viewBox="0 0 48 48">
-            <defs><linearGradient id="f4-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5c7a"></stop><stop offset="1" stop-color="#ff7ea2"></stop></linearGradient></defs>
-            <path d="M15 10.5c0-2.3 2.5-3.7 4.5-2.5l19 12.1c1.8 1.2 1.8 3.8 0 5L19.5 37.2c-2 1.3-4.5-.2-4.5-2.5z" fill="url(#f4-ig)"></path>
-            <path d="M5 30c5-6 9 4 14-2" fill="none" stroke="#0f172b" stroke-width="3.6" stroke-linecap="round"></path>
+        <div id="f4-lock">
+          <svg id="f4-icon" viewBox="0 0 1024 1024">
+            <path id="f4-ring" d="M762.4 484.58 A251.9 251.9 0 1 1 535.05 261.16" fill="none" stroke="#ffffff" stroke-width="85.4" stroke-linecap="round" stroke-dasharray="1240" stroke-dashoffset="1240"></path>
+            <circle id="f4-dot" cx="689.5" cy="333.5" r="58.6" fill="#ffffff"></circle>
           </svg>
-        </div>
-        <div id="f4-word">
-          <span class="f4-ch-mask"><span class="f4-ch">M</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">t</span></span><span class="f4-ch-mask"><span class="f4-ch">i</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">n</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">v</span></span><span class="f4-ch-mask"><span class="f4-ch">a</span></span>
+          <div id="f4-wm"><img src="assets/brand/motionova-wordmark-white.png" alt="motionova" /></div>
         </div>
       </div>
 
@@ -133,13 +126,15 @@
       tl.fromTo("#f4-q", { scale: 1, opacity: 1 }, { scale: 2.4, opacity: 0, filter: "blur(10px)", duration: 0.32, ease: "power3.in" }, 0.04);
       tl.fromTo("#f4-waves", { x: 0 }, { x: -1920, duration: 4.1, ease: "none" }, 0);
 
-      // Wordmark: icon spins in, letters rise (on "Motion Nova")
-      tl.fromTo("#f4-icon", { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 0.22);
-      tl.fromTo("#f4-word .f4-ch", { yPercent: 115 }, { yPercent: 0, duration: 0.5, ease: "power3.out", stagger: 0.03 }, 0.28);
+      // Logo: the ring draws itself, the dot pops on "Nova", the wordmark wipes in
+      tl.fromTo("#f4-ring", { attr: { "stroke-dashoffset": 1240 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "expo.out" }, 0.2);
+      tl.fromTo("#f4-icon", { rotation: -120, scale: 0.6 }, { rotation: 0, scale: 1, duration: 0.7, ease: "expo.out" }, 0.2);
+      tl.fromTo("#f4-dot", { scale: 0, svgOrigin: "689.5 333.5" }, { scale: 1, svgOrigin: "689.5 333.5", duration: 0.4, ease: "expo.out" }, 0.56);
+      tl.fromTo("#f4-wm", { clipPath: "inset(0% 100% 0% 0%)", x: -40 }, { clipPath: "inset(0% 0% 0% 0%)", x: 0, duration: 0.55, ease: "power3.out" }, 0.32);
 
       // "transforme" — logo lifts to header, the player builds
-      tl.to("#f4-logo", { y: -405, scale: 0.4, duration: 0.6, ease: "power3.inOut" }, 0.92);
-      tl.fromTo("#f4-player", { y: 380, scale: 0.7, rotationX: 30, opacity: 0, transformPerspective: 1600 }, { y: 0, scale: 1, rotationX: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.0);
+      tl.to("#f4-logo", { y: -405, scale: 0.4, duration: 0.45, ease: "power3.inOut" }, 0.9);
+      tl.fromTo("#f4-player", { y: 380, scale: 0.7, rotationX: 30, opacity: 0, transformPerspective: 1600 }, { y: 0, scale: 1, rotationX: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.14);
 
       // "vidéo" — play button pops, then is pressed on "motion design"
       tl.fromTo("#f4-play", { scale: 0 }, { scale: 1, duration: 0.38, ease: "expo.out" }, 1.45);

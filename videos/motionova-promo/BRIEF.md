@@ -31,7 +31,9 @@ Site motionova.fr (lu depuis le code source du projet Lovable "Pixel Perfect Rep
 - Voix off : timbre ElevenLabs « Bass – Warm, Deep Storytelling » (identifié par comparaison spectrale avec l'échantillon fourni), modèle eleven_v4, nouveau script → `assets/audio/voiceover.mp3` (normalisée −16 LUFS).
 - Typo : Inter (300–900), fichiers locaux `assets/fonts/`.
 - Couleurs : primaire #FF5C7A, dégradé #FF5C7A → #FF7EA2, encre #0F172B, fond #F9FBFF, teinte #FFF4F4, muted #5E6A7B.
-- Logo : wordmark typographique (le PNG du logo n'est pas récupérable depuis le conteneur — à remplacer par le fichier officiel).
+- Logo : fichiers officiels fournis (`assets/brand/source-*`). Icône redessinée en vectoriel (`assets/brand/motionova-icon.svg`, IoU 0.98 vs PNG) pour l'animer ; wordmark détouré en PNG transparent (couleur + blanc).
+- Bouton CTA : réplique du bouton du site (#FF5C7A plein, texte blanc).
+- Offres : cartes Essentiel / Signature (« La plus choisie ») / Premium reprises des captures du site (scène 6).
 
 ## Customizations
 - Pas de sous-titres karaoké : la typo cinétique porte les mots-clés.

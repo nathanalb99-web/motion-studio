@@ -22,6 +22,7 @@
     #f1-stat { position: absolute; left: 400px; top: 160px; width: 1120px; height: 760px; }
     #f1-ring { position: absolute; left: 225px; top: 15px; width: 670px; height: 670px; }
     #f1-ring circle { fill: none; stroke-width: 26; }
+    #f1-ring #f1-ring-dot { fill: #ff5c7a; stroke: none; }
     #f1-num-wrap {
       position: absolute; left: 0; top: 0; width: 1120px; height: 700px;
       display: flex; align-items: center; justify-content: center;
@@ -87,8 +88,9 @@
 
         <div id="f1-stat">
           <svg id="f1-ring" viewBox="0 0 600 600">
-            <circle cx="300" cy="300" r="270" stroke="#ffe6e8"></circle>
-            <circle id="f1-ring-fill" cx="300" cy="300" r="270" stroke="#ff5c7a" stroke-linecap="round" stroke-dasharray="1696.5" stroke-dashoffset="1696.5" transform="rotate(-90 300 300)"></circle>
+            <circle id="f1-ring-track" cx="300" cy="300" r="270" stroke="#ffe6e8"></circle>
+            <circle id="f1-ring-fill" cx="300" cy="300" r="270" stroke="#ff5c7a" stroke-linecap="round" stroke-dasharray="1696.5" stroke-dashoffset="1696.5" transform="rotate(-6.25 300 300)"></circle>
+            <circle id="f1-ring-dot" cx="549.6" cy="196.9" r="18" fill="#ff5c7a"></circle>
           </svg>
           <div id="f1-num-wrap">
             <span id="f1-num">0</span><span id="f1-pct">%</span>
@@ -133,6 +135,8 @@
       tl.fromTo("#f1-num", { scale: 0.55 }, { scale: 1, duration: 1.05, ease: "power3.out" }, 0.33);
       tl.fromTo("#f1-ring-fill", { attr: { "stroke-dashoffset": C } }, { attr: { "stroke-dashoffset": C * 0.09 }, duration: 1.05, ease: "power3.out" }, 0.33);
       tl.fromTo("#f1-ring", { scale: 0.7, rotation: -40, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, 0.25);
+      tl.fromTo("#f1-ring-dot", { scale: 0, svgOrigin: "549.6 196.9" }, { scale: 1, svgOrigin: "549.6 196.9", duration: 0.4, ease: "expo.out" }, 1.36);
+      tl.to("#f1-ring-track", { opacity: 0, duration: 0.35, ease: "power2.out" }, 1.3);
       tl.fromTo("#f1-pct", { y: 60, opacity: 0, scale: 0.6 }, { y: 0, opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" }, 1.3);
 
       // Video chips burst outward from the stat

@@ -24,11 +24,10 @@
     #f7-wave-mid path { fill: #ececf0; }
     #f7-wave-front path { fill: #e6e6eb; }
     #f7-logo { position: absolute; left: 0; top: 120px; width: 1920px; display: flex; align-items: center; justify-content: center; gap: 26px; }
-    #f7-icon {
-      width: 104px; height: 104px; border-radius: 30px; background: linear-gradient(135deg, #ff5c7a, #ff7ea2);
-      display: flex; align-items: center; justify-content: center; box-shadow: 0 24px 50px -20px rgba(255, 92, 122, 0.75);
-    }
-    #f7-word { font-size: 92px; font-weight: 900; letter-spacing: -0.055em; line-height: 1; }
+    #f7-lock { position: relative; width: 792px; height: 109px; }
+    #f7-icon { position: absolute; left: 0; top: 0; width: 109px; height: 109px; overflow: visible; }
+    #f7-wm { position: absolute; left: 141px; top: 6px; width: 652px; height: 105px; }
+    #f7-wm img { display: block; width: 100%; height: 100%; }
     #f7-l1 { position: absolute; left: 0; top: 300px; width: 1920px; display: flex; justify-content: center; gap: 0 28px; }
     .f7-mask { display: block; overflow: hidden; padding-bottom: 14px; }
     .f7-w { display: block; font-size: 104px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.1; white-space: nowrap; }
@@ -41,8 +40,8 @@
     #f7-swoosh { position: absolute; left: 700px; top: 628px; width: 520px; height: 50px; }
     #f7-btns { position: absolute; left: 0; top: 708px; width: 1920px; display: flex; justify-content: center; gap: 26px; }
     #f7-cta {
-      position: relative; display: flex; align-items: center; gap: 18px; padding: 30px 52px; border-radius: 999px;
-      background: linear-gradient(135deg, #f24d6e, #f65a7c); color: #fff; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap;
+      position: relative; display: flex; align-items: center; padding: 32px 66px; border-radius: 999px;
+      background: #ff5c7a; color: #fff; font-size: 42px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap;
       box-shadow: 0 2px 4px rgba(15, 23, 43, 0.05), 0 34px 70px -28px rgba(255, 92, 122, 0.85);
     }
     #f7-url {
@@ -74,13 +73,13 @@
 
     <div id="f7-scene" class="clip" data-start="0" data-duration="7.3" data-track-index="1">
       <div id="f7-logo">
-        <div id="f7-icon">
-          <svg width="66" height="66" viewBox="0 0 48 48">
-            <path d="M15 10.5c0-2.3 2.5-3.7 4.5-2.5l19 12.1c1.8 1.2 1.8 3.8 0 5L19.5 37.2c-2 1.3-4.5-.2-4.5-2.5z" fill="#ffffff"></path>
-            <path d="M5 30c5-6 9 4 14-2" fill="none" stroke="#0f172b" stroke-width="3.6" stroke-linecap="round"></path>
+        <div id="f7-lock">
+          <svg id="f7-icon" viewBox="0 0 1024 1024">
+            <path id="f7-ring" d="M762.4 484.58 A251.9 251.9 0 1 1 535.05 261.16" fill="none" stroke="#ff5c7a" stroke-width="85.4" stroke-linecap="round" stroke-dasharray="1240" stroke-dashoffset="1240"></path>
+            <circle id="f7-dot" cx="689.5" cy="333.5" r="58.6" fill="#ff5c7a"></circle>
           </svg>
+          <div id="f7-wm"><img src="assets/brand/motionova-wordmark-color.png" alt="motionova" /></div>
         </div>
-        <div id="f7-word">Motionova</div>
       </div>
 
       <div id="f7-l1">
@@ -95,7 +94,6 @@
         <div id="f7-cta">
           <div id="f7-ripple"></div>
           Commander ma vidéo
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </div>
         <div id="f7-url">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff5c7a" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.8 3 2.8 16 0 19M12 2.5c-2.8 3-2.8 16 0 19"/></svg>
@@ -124,8 +122,10 @@
       tl.fromTo("#f7-waves", { y: 160 }, { y: 0, duration: 0.9, ease: "power3.out" }, 0.1);
 
       // Logo assembles on "Motion Nova"
-      tl.fromTo("#f7-icon", { scale: 0, rotation: -140 }, { scale: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 0.18);
-      tl.fromTo("#f7-word", { x: -60, opacity: 0, filter: "blur(10px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "expo.out" }, 0.3);
+      tl.fromTo("#f7-ring", { attr: { "stroke-dashoffset": 1240 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "expo.out" }, 0.16);
+      tl.fromTo("#f7-icon", { rotation: -120, scale: 0.6 }, { rotation: 0, scale: 1, duration: 0.7, ease: "expo.out" }, 0.16);
+      tl.fromTo("#f7-dot", { scale: 0, svgOrigin: "689.5 333.5" }, { scale: 1, svgOrigin: "689.5 333.5", duration: 0.4, ease: "expo.out" }, 0.42);
+      tl.fromTo("#f7-wm", { clipPath: "inset(0% 100% 0% 0%)", x: -30 }, { clipPath: "inset(0% 0% 0% 0%)", x: 0, duration: 0.55, ease: "power3.out" }, 0.28);
 
       // "Rendez votre produit" word by word, "évident." inverse zoom arrival
       [["#f7-w1", 1.04], ["#f7-w2", 1.3], ["#f7-w3", 1.56]].forEach(([id, t]) => {
@@ -141,7 +141,7 @@
 
       // Cursor glides in and clicks the CTA (press + ripple)
       tl.fromTo("#f7-cursor", { x: 1560, y: 1100, opacity: 0 }, { x: 1300, y: 960, opacity: 1, duration: 0.3, ease: "power2.out" }, 3.25);
-      tl.to("#f7-cursor", { x: 968, y: 772, duration: 0.6, ease: "power3.inOut" }, 3.56);
+      tl.to("#f7-cursor", { x: 990, y: 782, duration: 0.6, ease: "power3.inOut" }, 3.56);
       tl.to("#f7-cursor", { scale: 0.85, duration: 0.08, ease: "power2.in" }, 4.18);
       tl.to("#f7-cta", { scale: 0.95, duration: 0.08, ease: "power2.in" }, 4.18);
       tl.to("#f7-cursor", { scale: 1, duration: 0.3, ease: "power3.out" }, 4.26);
