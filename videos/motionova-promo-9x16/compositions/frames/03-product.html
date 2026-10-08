@@ -1,0 +1,167 @@
+<template>
+  <script src="assets/vendor/gsap.min.js"></script>
+  <style>
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); font-weight: 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; font-family: "Inter", sans-serif; color: #0f172b; }
+    #f3-bg { position: absolute; inset: 0; background: #f9fbff; }
+    #f3-dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255, 92, 122, 0.14) 1.6px, transparent 1.9px);
+      background-size: 32px 32px;
+      -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 30%, transparent 75%);
+      mask-image: radial-gradient(ellipse at 50% 50%, #000 30%, transparent 75%);
+    }
+    #f3-stage { position: absolute; inset: 0; perspective: 1800px; }
+    #f3-dash {
+      position: absolute; left: 70px; top: 470px; width: 940px; height: 1040px; border-radius: 40px; background: #ffffff;
+      box-shadow: 0 2px 4px rgba(15, 23, 43, 0.05), 0 50px 100px -40px rgba(15, 23, 43, 0.35);
+      overflow: hidden; display: flex;
+    }
+    #f3-side { width: 150px; background: #0f172b; padding: 36px 26px; display: flex; flex-direction: column; gap: 22px; }
+    .f3-logo { width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #ff5c7a, #ff7ea2); margin-bottom: 18px; }
+    .f3-nav { height: 18px; border-radius: 9px; background: rgba(255, 255, 255, 0.14); }
+    .f3-nav.on { background: rgba(255, 92, 122, 0.85); }
+    #f3-main { flex: 1; padding: 40px 34px; }
+    #f3-head { display: flex; align-items: center; justify-content: space-between; }
+    #f3-h1 { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; }
+    #f3-search { width: 260px; height: 52px; border-radius: 24px; background: #f1f4f9; }
+    #f3-kpis { display: flex; flex-direction: column; gap: 18px; margin-top: 34px; }
+    .f3-kpi { border-radius: 24px; background: #f9fbff; border: 1.5px solid #e2e8f0; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; }
+    .f3-kpi-l { font-size: 26px; font-weight: 600; color: #5e6a7b; }
+    .f3-kpi-v { font-size: 44px; font-weight: 900; letter-spacing: -0.03em; white-space: nowrap; }
+    .f3-kpi-d { margin-left: 10px; font-size: 20px; font-weight: 700; color: #16a34a; }
+    #f3-chart { margin-top: 26px; height: 500px; border-radius: 24px; background: #f9fbff; border: 1.5px solid #e2e8f0; position: relative; overflow: hidden; }
+    #f3-chart svg { position: absolute; inset: 0; }
+    #f3-genial {
+      position: absolute; left: 560px; top: 360px; display: flex; align-items: center; gap: 14px;
+      padding: 18px 34px; border-radius: 999px; background: linear-gradient(100deg, #ff5c7a, #ff7ea2); color: #fff;
+      font-size: 54px; font-weight: 900; letter-spacing: -0.02em; white-space: nowrap;
+      box-shadow: 0 30px 60px -24px rgba(255, 92, 122, 0.8);
+    }
+    .f3-spark { position: absolute; width: 56px; height: 56px; }
+    #f3-noise { position: absolute; inset: 0; }
+    .f3-para {
+      position: absolute; width: 620px; padding: 32px 34px; border-radius: 28px; background: #ffffff;
+      box-shadow: 0 30px 70px -30px rgba(15, 23, 43, 0.45); display: flex; flex-direction: column; gap: 14px;
+    }
+    .f3-ln { height: 20px; border-radius: 8px; background: #d5dbe5; }
+    .f3-tag {
+      position: absolute; padding: 12px 22px; border-radius: 14px; background: #0f172b; color: #fff;
+      font-size: 34px; font-weight: 700; white-space: nowrap; box-shadow: 0 20px 40px -20px rgba(15, 23, 43, 0.6);
+    }
+    #f3-q {
+      position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; display: flex; align-items: center; justify-content: center;
+    }
+    #f3-q-mark {
+      width: 480px; height: 480px; border-radius: 50%; background: linear-gradient(135deg, #ff5c7a, #ff7ea2);
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 360px; font-weight: 900; line-height: 1;
+      box-shadow: 0 50px 120px -30px rgba(255, 92, 122, 0.9);
+    }
+  </style>
+
+  <div id="root" data-composition-id="03-product" data-width="1080" data-height="1920">
+    <div id="f3-bgclip" class="clip" data-start="0" data-duration="3" data-track-index="0">
+      <div id="f3-bg"></div>
+      <div id="f3-dots"></div>
+    </div>
+
+    <div id="f3-scene" class="clip" data-start="0" data-duration="3" data-track-index="1">
+      <div id="f3-stage">
+        <div id="f3-dash">
+          <div id="f3-side">
+            <div class="f3-logo"></div>
+            <div class="f3-nav on" style="width: 120px;"></div>
+            <div class="f3-nav" style="width: 140px;"></div>
+            <div class="f3-nav" style="width: 100px;"></div>
+            <div class="f3-nav" style="width: 130px;"></div>
+            <div class="f3-nav" style="width: 90px;"></div>
+          </div>
+          <div id="f3-main">
+            <div id="f3-head"><div id="f3-h1">Votre SaaS</div><div id="f3-search"></div></div>
+            <div id="f3-kpis">
+              <div class="f3-kpi" id="f3-k1"><div class="f3-kpi-l">MRR</div><div class="f3-kpi-v">48,2 k€<span class="f3-kpi-d">+18 %</span></div></div>
+              <div class="f3-kpi" id="f3-k2"><div class="f3-kpi-l">Utilisateurs</div><div class="f3-kpi-v">12 480</div></div>
+              <div class="f3-kpi" id="f3-k3"><div class="f3-kpi-l">Activation</div><div class="f3-kpi-v">64 %</div></div>
+            </div>
+            <div id="f3-chart">
+              <svg viewBox="0 0 860 300" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="f3-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#ff5c7a" stop-opacity="0.28"></stop>
+                    <stop offset="1" stop-color="#ff5c7a" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <path id="f3-area-path" d="M0 250 C 90 240, 140 210, 220 200 S 360 170, 430 150 S 560 120, 640 90 S 780 50, 860 30 L 860 300 L 0 300 Z" fill="url(#f3-area)"></path>
+                <path id="f3-line" d="M0 250 C 90 240, 140 210, 220 200 S 360 170, 430 150 S 560 120, 640 90 S 780 50, 860 30" fill="none" stroke="#ff5c7a" stroke-width="6" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div id="f3-genial">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="#ffffff"><path d="M12 2.5l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.8l-5.8 3.5 1.6-6.6-5.2-4.4 6.8-.5z"/></svg>
+          Génial
+        </div>
+        <svg class="f3-spark" id="f3-s1" style="left: 500px; top: 300px;" viewBox="0 0 24 24"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z" fill="#ff5c7a"/></svg>
+        <svg class="f3-spark" id="f3-s2" style="left: 980px; top: 470px; width: 40px; height: 40px;" viewBox="0 0 24 24"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z" fill="#ff7ea2"/></svg>
+        <svg class="f3-spark" id="f3-s3" style="left: 860px; top: 290px; width: 34px; height: 34px;" viewBox="0 0 24 24"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z" fill="#0f172b"/></svg>
+
+        <div id="f3-noise">
+          <div class="f3-para" id="f3-n1" style="left: 40px; top: 430px;"><div class="f3-ln" style="width: 92%;"></div><div class="f3-ln"></div><div class="f3-ln" style="width: 80%;"></div><div class="f3-ln" style="width: 95%;"></div><div class="f3-ln" style="width: 60%;"></div></div>
+          <div class="f3-para" id="f3-n2" style="left: 420px; top: 1050px;"><div class="f3-ln"></div><div class="f3-ln" style="width: 85%;"></div><div class="f3-ln" style="width: 97%;"></div><div class="f3-ln" style="width: 70%;"></div></div>
+          <div class="f3-para" id="f3-n3" style="left: 60px; top: 1300px;"><div class="f3-ln" style="width: 88%;"></div><div class="f3-ln"></div><div class="f3-ln" style="width: 76%;"></div><div class="f3-ln" style="width: 93%;"></div><div class="f3-ln" style="width: 55%;"></div></div>
+          <div class="f3-para" id="f3-n4" style="left: 400px; top: 700px;"><div class="f3-ln" style="width: 90%;"></div><div class="f3-ln" style="width: 98%;"></div><div class="f3-ln" style="width: 66%;"></div></div>
+          <div class="f3-tag" id="f3-t1" style="left: 70px; top: 900px;">API REST</div>
+          <div class="f3-tag" id="f3-t2" style="left: 640px; top: 330px;">Webhooks</div>
+          <div class="f3-tag" id="f3-t3" style="left: 700px; top: 1600px;">SSO / SAML</div>
+          <div class="f3-tag" id="f3-t4" style="left: 90px; top: 1640px;">Multi-tenant</div>
+          <div class="f3-tag" id="f3-t5" style="left: 760px; top: 960px;">RBAC</div>
+        </div>
+      </div>
+
+      <div id="f3-q"><div id="f3-q-mark">?</div></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+
+      // Dashboard arrives in 3D and settles (smooth long-tail)
+      tl.fromTo("#f3-dash", { rotationX: 32, rotationY: -18, y: 220, scale: 0.82, opacity: 0, transformPerspective: 1800 }, { rotationX: 8, rotationY: -6, y: 0, scale: 1, opacity: 1, duration: 0.9, ease: "expo.out" }, 0.12);
+      tl.to("#f3-dash", { rotationX: 0, rotationY: 0, duration: 0.95, ease: "power3.out" }, 1.03);
+      ["#f3-k1", "#f3-k2", "#f3-k3"].forEach((id, i) => {
+        tl.fromTo(id, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 0.4 + i * 0.08);
+      });
+      tl.fromTo("#f3-line", { attr: { "stroke-dashoffset": 1000 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.9, ease: "power3.inOut" }, 0.45);
+      tl.fromTo("#f3-area-path", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.8);
+
+      // "génial" — chip slam + sparkles
+      tl.fromTo("#f3-genial", { scale: 0.4, rotation: -12, opacity: 0 }, { scale: 1, rotation: 6, opacity: 1, duration: 0.5, ease: "expo.out" }, 0.96);
+      ["#f3-s1", "#f3-s2", "#f3-s3"].forEach((id, i) => {
+        tl.fromTo(id, { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.5, ease: "expo.out" }, 1.0 + i * 0.07);
+      });
+
+      // "Encore faut-il qu'on le comprenne" — jargon buries the product
+      tl.to("#f3-dash", { filter: "blur(6px)", scale: 0.95, duration: 0.6, ease: "power2.out" }, 1.72);
+      tl.to(["#f3-genial", "#f3-s1", "#f3-s2", "#f3-s3"], { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, 1.72);
+      const paras = [["#f3-n1", -700, -80, -6], ["#f3-n2", 700, 120, 5], ["#f3-n3", 0, 700, -3], ["#f3-n4", 700, -300, 6]];
+      paras.forEach(([id, x, y, r], i) => {
+        tl.fromTo(id, { x, y, rotation: r * 3, opacity: 0 }, { x: 0, y: 0, rotation: r, opacity: 1, duration: 0.45, ease: "expo.out" }, 1.74 + i * 0.12);
+      });
+      ["#f3-t2", "#f3-t1", "#f3-t3", "#f3-t4", "#f3-t5"].forEach((id, i) => {
+        tl.fromTo(id, { scale: 0.2, opacity: 0, rotation: i % 2 ? 20 : -20 }, { scale: 1, opacity: 1, rotation: i % 2 ? 4 : -4, duration: 0.35, ease: "expo.out" }, 1.95 + i * 0.08);
+      });
+
+      // "comprenne" — big question mark lands (handoff to the reveal circle)
+      tl.to("#f3-noise", { filter: "blur(5px)", opacity: 0.55, duration: 0.3, ease: "power2.out" }, 2.4);
+      tl.fromTo("#f3-q-mark", { scale: 2.2, opacity: 0, rotation: -25, filter: "blur(10px)" }, { scale: 1, opacity: 1, rotation: 0, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 2.4);
+      tl.fromTo("#f3-q-mark", { y: 0 }, { y: -8, duration: 0.12, ease: "power2.out", immediateRender: false }, 2.86);
+
+      window.__timelines["03-product"] = tl;
+    })();
+  </script>
+</template>
