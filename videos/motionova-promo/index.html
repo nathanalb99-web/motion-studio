@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Motionova — Promo 30s</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+      @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
+      @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); font-weight: 900; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #f9fbff; }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #f9fbff;
+        font-family: "Inter", sans-serif;
+      }
+      .frame { position: absolute; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1920" data-height="1080">
+      <!-- Frames (sub-compositions) -->
+      <div id="f01" class="clip frame" data-composition-id="01-hook" data-composition-src="compositions/frames/01-hook.html" data-start="0" data-duration="4.3" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f02" class="clip frame" data-composition-id="02-pain" data-composition-src="compositions/frames/02-pain.html" data-start="4.3" data-duration="3.8" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f03" class="clip frame" data-composition-id="03-product" data-composition-src="compositions/frames/03-product.html" data-start="8.1" data-duration="3" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f04" class="clip frame" data-composition-id="04-reveal" data-composition-src="compositions/frames/04-reveal.html" data-start="11.1" data-duration="4.1" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f05" class="clip frame" data-composition-id="05-process" data-composition-src="compositions/frames/05-process.html" data-start="15.2" data-duration="4.1" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f06" class="clip frame" data-composition-id="06-offer" data-composition-src="compositions/frames/06-offer.html" data-start="19.3" data-duration="3.4" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="f07" class="clip frame" data-composition-id="07-end" data-composition-src="compositions/frames/07-end.html" data-start="22.7" data-duration="7.3" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Transition wipes (cover each cut, on the beat) -->
+      <div id="fx" class="clip frame" data-composition-id="transitions" data-composition-src="compositions/transitions.html" data-start="0" data-duration="30" data-track-index="5" data-width="1920" data-height="1080"></div>
+
+      <!-- Audio -->
+      <audio
+        id="vo"
+        src="assets/audio/voiceover.mp3"
+        data-start="0.3"
+        data-duration="24.95"
+        data-track-index="8"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="music"
+        src="assets/audio/music.mp3"
+        data-start="0"
+        data-duration="30"
+        data-media-start="3.4"
+        data-track-index="9"
+        data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.3},{"t":0.25,"v":0.2},{"t":25.1,"v":0.2},{"t":25.7,"v":0.48},{"t":28.3,"v":0.48},{"t":29.95,"v":0}]}]}'
+      ></audio>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

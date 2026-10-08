@@ -1,0 +1,159 @@
+<template>
+  <script src="assets/vendor/gsap.min.js"></script>
+  <style>
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); font-weight: 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; font-family: "Inter", sans-serif; color: #0f172b; }
+    #f7-bg { position: absolute; inset: 0; background: #f9fbff; }
+    #f7-dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255, 92, 122, 0.14) 1.6px, transparent 1.9px);
+      background-size: 32px 32px;
+      -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 70%);
+      mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 70%);
+    }
+    #f7-glow {
+      position: absolute; left: 560px; top: 160px; width: 800px; height: 800px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 92, 122, 0.16) 0%, transparent 65%);
+    }
+    #f7-waves { position: absolute; left: 0; bottom: 0; width: 1920px; height: 300px; overflow: hidden; }
+    .f7-wave { position: absolute; left: 0; bottom: 0; width: 3840px; height: 300px; }
+    #f7-wave-back path { fill: #f2f2f5; stroke: rgba(255, 92, 122, 0.68); stroke-width: 2; }
+    #f7-wave-mid path { fill: #ececf0; }
+    #f7-wave-front path { fill: #e6e6eb; }
+    #f7-logo { position: absolute; left: 0; top: 120px; width: 1920px; display: flex; align-items: center; justify-content: center; gap: 26px; }
+    #f7-icon {
+      width: 104px; height: 104px; border-radius: 30px; background: linear-gradient(135deg, #ff5c7a, #ff7ea2);
+      display: flex; align-items: center; justify-content: center; box-shadow: 0 24px 50px -20px rgba(255, 92, 122, 0.75);
+    }
+    #f7-word { font-size: 92px; font-weight: 900; letter-spacing: -0.055em; line-height: 1; }
+    #f7-l1 { position: absolute; left: 0; top: 300px; width: 1920px; display: flex; justify-content: center; gap: 0 28px; }
+    .f7-mask { display: block; overflow: hidden; padding-bottom: 14px; }
+    .f7-w { display: block; font-size: 104px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.1; white-space: nowrap; }
+    #f7-l2 { position: absolute; left: 0; top: 405px; width: 1920px; display: flex; justify-content: center; }
+    #f7-evident {
+      display: block; font-size: 200px; font-weight: 900; letter-spacing: -0.06em; line-height: 1.12; white-space: nowrap; padding: 0 20px;
+      background-image: linear-gradient(100deg, #ff5c7a 0%, #ff7ea2 60%, #ff5c7a 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    #f7-swoosh { position: absolute; left: 700px; top: 628px; width: 520px; height: 50px; }
+    #f7-btns { position: absolute; left: 0; top: 708px; width: 1920px; display: flex; justify-content: center; gap: 26px; }
+    #f7-cta {
+      position: relative; display: flex; align-items: center; gap: 18px; padding: 30px 52px; border-radius: 999px;
+      background: linear-gradient(135deg, #f24d6e, #f65a7c); color: #fff; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(15, 23, 43, 0.05), 0 34px 70px -28px rgba(255, 92, 122, 0.85);
+    }
+    #f7-url {
+      display: flex; align-items: center; gap: 14px; padding: 30px 46px; border-radius: 999px; background: #ffffff;
+      border: 2px solid #e2e8f0; color: #0f172b; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap;
+      box-shadow: 0 12px 32px -16px rgba(15, 23, 43, 0.2);
+    }
+    #f7-ripple {
+      position: absolute; left: 50%; top: 50%; width: 140px; height: 140px; margin: -70px 0 0 -70px; border-radius: 50%;
+      border: 6px solid #ff5c7a;
+    }
+    #f7-chips { position: absolute; left: 0; top: 842px; width: 1920px; display: flex; justify-content: center; gap: 40px; }
+    .f7-chip { display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 600; color: #5e6a7b; white-space: nowrap; }
+    .f7-chk { width: 36px; height: 36px; border-radius: 50%; background: #fff4f4; display: flex; align-items: center; justify-content: center; }
+    #f7-cursor { position: absolute; left: 0; top: 0; width: 64px; height: 64px; }
+  </style>
+
+  <div id="root" data-composition-id="07-end" data-width="1920" data-height="1080">
+    <div id="f7-bgclip" class="clip" data-start="0" data-duration="7.3" data-track-index="0">
+      <div id="f7-bg"></div>
+      <div id="f7-dots"></div>
+      <div id="f7-glow"></div>
+      <div id="f7-waves" data-layout-allow-overflow>
+        <svg class="f7-wave" id="f7-wave-back" viewBox="0 0 3840 300" preserveAspectRatio="none"><path d="M0 92C180 22 420 162 600 92S1020 22 1200 92C1380 22 1620 162 1800 92S2220 22 2400 92C2580 22 2820 162 3000 92S3420 22 3600 92C3700 55 3780 70 3840 92V300H0Z"/></svg>
+        <svg class="f7-wave" id="f7-wave-mid" viewBox="0 0 3840 300" preserveAspectRatio="none"><path d="M0 142C220 62 390 206 600 142S980 62 1200 142C1420 62 1590 206 1800 142S2180 62 2400 142C2620 62 2790 206 3000 142S3380 62 3600 142C3700 105 3780 120 3840 142V300H0Z"/></svg>
+        <svg class="f7-wave" id="f7-wave-front" viewBox="0 0 3840 300" preserveAspectRatio="none"><path d="M0 198C190 118 410 250 600 198S1010 118 1200 198C1390 118 1610 250 1800 198S2210 118 2400 198C2590 118 2810 250 3000 198S3410 118 3600 198C3700 160 3780 175 3840 198V300H0Z"/></svg>
+      </div>
+    </div>
+
+    <div id="f7-scene" class="clip" data-start="0" data-duration="7.3" data-track-index="1">
+      <div id="f7-logo">
+        <div id="f7-icon">
+          <svg width="66" height="66" viewBox="0 0 48 48">
+            <path d="M15 10.5c0-2.3 2.5-3.7 4.5-2.5l19 12.1c1.8 1.2 1.8 3.8 0 5L19.5 37.2c-2 1.3-4.5-.2-4.5-2.5z" fill="#ffffff"></path>
+            <path d="M5 30c5-6 9 4 14-2" fill="none" stroke="#0f172b" stroke-width="3.6" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div id="f7-word">Motionova</div>
+      </div>
+
+      <div id="f7-l1">
+        <span class="f7-mask"><span class="f7-w" id="f7-w1">Rendez</span></span>
+        <span class="f7-mask"><span class="f7-w" id="f7-w2">votre</span></span>
+        <span class="f7-mask"><span class="f7-w" id="f7-w3">produit</span></span>
+      </div>
+      <div id="f7-l2"><span id="f7-evident">évident.</span></div>
+      <svg id="f7-swoosh" viewBox="0 0 520 50"><path id="f7-swoosh-path" d="M10 36 C 140 8, 330 6, 510 26" fill="none" stroke="#0f172b" stroke-width="9" stroke-linecap="round" stroke-dasharray="540" stroke-dashoffset="540"></path></svg>
+
+      <div id="f7-btns">
+        <div id="f7-cta">
+          <div id="f7-ripple"></div>
+          Commander ma vidéo
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+        <div id="f7-url">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff5c7a" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.8 3 2.8 16 0 19M12 2.5c-2.8 3-2.8 16 0 19"/></svg>
+          motionova.fr
+        </div>
+      </div>
+
+      <div id="f7-chips">
+        <div class="f7-chip" id="f7-ch1"><span class="f7-chk"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#ff5c7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Script inclus</div>
+        <div class="f7-chip" id="f7-ch2"><span class="f7-chk"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#ff5c7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Délai garanti</div>
+        <div class="f7-chip" id="f7-ch3"><span class="f7-chk"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#ff5c7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>100 % en ligne, sans appel</div>
+      </div>
+
+      <svg id="f7-cursor" viewBox="0 0 32 32"><path d="M6 3l19 11.5-8.2 1.8 4.6 9.2-3.6 1.8-4.6-9.2L6 24z" fill="#0f172b" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+
+      // Ambient: brand waves drift across the whole hold (finite, linear)
+      tl.fromTo("#f7-wave-back", { x: 0 }, { x: -1100, duration: 7.3, ease: "none" }, 0);
+      tl.fromTo("#f7-wave-mid", { x: -1200 }, { x: -300, duration: 7.3, ease: "none" }, 0);
+      tl.fromTo("#f7-wave-front", { x: 0 }, { x: -1400, duration: 7.3, ease: "none" }, 0);
+      tl.fromTo("#f7-waves", { y: 160 }, { y: 0, duration: 0.9, ease: "power3.out" }, 0.1);
+
+      // Logo assembles on "Motion Nova"
+      tl.fromTo("#f7-icon", { scale: 0, rotation: -140 }, { scale: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 0.18);
+      tl.fromTo("#f7-word", { x: -60, opacity: 0, filter: "blur(10px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "expo.out" }, 0.3);
+
+      // "Rendez votre produit" word by word, "évident." inverse zoom arrival
+      [["#f7-w1", 1.04], ["#f7-w2", 1.3], ["#f7-w3", 1.56]].forEach(([id, t]) => {
+        tl.fromTo(id, { yPercent: 110 }, { yPercent: 0, duration: 0.45, ease: "power3.out" }, t);
+      });
+      tl.fromTo("#f7-evident", { scale: 1.35, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "expo.out" }, 2.12);
+      tl.fromTo("#f7-swoosh-path", { attr: { "stroke-dashoffset": 540 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power3.inOut" }, 2.5);
+
+      // CTA + site link
+      tl.fromTo("#f7-cta", { y: 90, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.55, ease: "expo.out" }, 2.88);
+      tl.fromTo("#f7-url", { y: 90, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.55, ease: "expo.out" }, 3.02);
+      tl.set("#f7-ripple", { scale: 0.4, opacity: 0 }, 0);
+
+      // Cursor glides in and clicks the CTA (press + ripple)
+      tl.fromTo("#f7-cursor", { x: 1560, y: 1100, opacity: 0 }, { x: 1300, y: 960, opacity: 1, duration: 0.3, ease: "power2.out" }, 3.25);
+      tl.to("#f7-cursor", { x: 968, y: 772, duration: 0.6, ease: "power3.inOut" }, 3.56);
+      tl.to("#f7-cursor", { scale: 0.85, duration: 0.08, ease: "power2.in" }, 4.18);
+      tl.to("#f7-cta", { scale: 0.95, duration: 0.08, ease: "power2.in" }, 4.18);
+      tl.to("#f7-cursor", { scale: 1, duration: 0.3, ease: "power3.out" }, 4.26);
+      tl.to("#f7-cta", { scale: 1, duration: 0.35, ease: "power3.out" }, 4.26);
+      tl.fromTo("#f7-ripple", { scale: 0.4, opacity: 0.9 }, { scale: 4.2, opacity: 0, duration: 0.8, ease: "power2.out" }, 4.24);
+
+      // Reassurance chips
+      ["#f7-ch1", "#f7-ch2", "#f7-ch3"].forEach((id, i) => {
+        tl.fromTo(id, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 4.6 + i * 0.12);
+      });
+
+      window.__timelines["07-end"] = tl;
+    })();
+  </script>
+</template>

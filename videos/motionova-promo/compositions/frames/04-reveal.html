@@ -1,0 +1,169 @@
+<template>
+  <script src="assets/vendor/gsap.min.js"></script>
+  <style>
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); font-weight: 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; font-family: "Inter", sans-serif; color: #fff; }
+    #f4-base { position: absolute; inset: 0; background: #f9fbff; }
+    #f4-circle {
+      position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      background: linear-gradient(135deg, #ff5c7a 0%, #ff6f8e 55%, #ff7ea2 100%);
+      clip-path: circle(200px at 50% 50%);
+    }
+    #f4-waves { position: absolute; left: 0; bottom: -40px; width: 3840px; height: 420px; }
+    #f4-waves path { fill: #ffffff; }
+    #f4-qwrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: flex; align-items: center; justify-content: center; }
+    #f4-q { font-size: 300px; font-weight: 900; color: #fff; line-height: 1; }
+    #f4-logo {
+      position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      display: flex; align-items: center; justify-content: center; gap: 44px;
+    }
+    #f4-icon {
+      width: 170px; height: 170px; border-radius: 48px; background: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 40px 80px -30px rgba(15, 23, 43, 0.45);
+    }
+    #f4-word { display: flex; font-size: 168px; font-weight: 900; letter-spacing: -0.055em; line-height: 1.1; }
+    .f4-ch-mask { display: block; overflow: hidden; padding-bottom: 12px; }
+    .f4-ch { display: block; }
+    #f4-player {
+      position: absolute; left: 430px; top: 290px; width: 1060px; height: 600px; border-radius: 40px; background: #ffffff;
+      padding: 20px; box-shadow: 0 60px 120px -40px rgba(15, 23, 43, 0.6);
+    }
+    #f4-screen { position: relative; width: 100%; height: 100%; border-radius: 26px; background: #0f172b; overflow: hidden; }
+    #f4-screen-glow {
+      position: absolute; left: 520px; top: -200px; width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 92, 122, 0.35), transparent 65%);
+    }
+    #f4-play {
+      position: absolute; left: 435px; top: 200px; width: 150px; height: 150px; border-radius: 50%;
+      background: linear-gradient(135deg, #ff5c7a, #ff7ea2); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 20px 60px -10px rgba(255, 92, 122, 0.8);
+    }
+    .f4-shape { position: absolute; }
+    #f4-sh-circle { left: 120px; top: 120px; width: 150px; height: 150px; border-radius: 50%; background: #ff5c7a; }
+    #f4-sh-square { left: 420px; top: 150px; width: 130px; height: 130px; border-radius: 30px; background: #ffffff; }
+    #f4-sh-ring { left: 700px; top: 90px; width: 190px; height: 190px; border-radius: 50%; border: 18px solid #ff7ea2; }
+    #f4-bars { position: absolute; left: 120px; top: 330px; width: 380px; height: 140px; display: flex; align-items: flex-end; gap: 22px; }
+    .f4-bar { width: 72px; border-radius: 14px 14px 6px 6px; background: #ff5c7a; transform-origin: 50% 100%; }
+    #f4-wave { position: absolute; left: 540px; top: 330px; width: 420px; height: 140px; }
+    #f4-ctrl { position: absolute; left: 34px; right: 34px; bottom: 26px; display: flex; align-items: center; gap: 22px; }
+    #f4-track { flex: 1; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+    #f4-fill { width: 100%; height: 100%; border-radius: 5px; background: #ff5c7a; transform-origin: 0 50%; }
+    #f4-time { font-size: 22px; font-weight: 600; color: rgba(255, 255, 255, 0.8); font-variant-numeric: tabular-nums; }
+    .f4-chip {
+      position: absolute; display: flex; align-items: center; gap: 16px; padding: 22px 38px; border-radius: 999px;
+      font-size: 54px; font-weight: 900; letter-spacing: -0.03em; white-space: nowrap;
+      box-shadow: 0 40px 80px -30px rgba(15, 23, 43, 0.55);
+    }
+    #f4-c1 { left: 170px; top: 520px; background: #ffffff; color: #0f172b; }
+    #f4-c2 { left: 1330px; top: 700px; background: #0f172b; color: #ffffff; }
+  </style>
+
+  <div id="root" data-composition-id="04-reveal" data-width="1920" data-height="1080">
+    <div id="f4-bgclip" class="clip" data-start="0" data-duration="4.1" data-track-index="0">
+      <div id="f4-base"></div>
+      <div id="f4-circle">
+        <svg id="f4-waves" data-layout-allow-overflow viewBox="0 0 3840 420" preserveAspectRatio="none">
+          <path opacity="0.10" d="M0 120 C 240 40, 560 200, 960 120 S 1680 40, 1920 120 C 2160 40, 2480 200, 2880 120 S 3600 40, 3840 120 V 420 H 0 Z"></path>
+          <path opacity="0.12" d="M0 200 C 300 110, 520 290, 960 200 S 1640 110, 1920 200 C 2220 110, 2440 290, 2880 200 S 3560 110, 3840 200 V 420 H 0 Z"></path>
+          <path opacity="0.14" d="M0 280 C 250 190, 560 350, 960 280 S 1660 190, 1920 280 C 2170 190, 2480 350, 2880 280 S 3580 190, 3840 280 V 420 H 0 Z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div id="f4-scene" class="clip" data-start="0" data-duration="4.1" data-track-index="1">
+      <div id="f4-qwrap"><div id="f4-q">?</div></div>
+
+      <div id="f4-player">
+        <div id="f4-screen">
+          <div id="f4-screen-glow"></div>
+          <div class="f4-shape" id="f4-sh-circle"></div>
+          <div class="f4-shape" id="f4-sh-square"></div>
+          <div class="f4-shape" id="f4-sh-ring"></div>
+          <div id="f4-bars">
+            <div class="f4-bar" id="f4-b1" style="height: 60px;"></div>
+            <div class="f4-bar" id="f4-b2" style="height: 100px; background: #ffffff;"></div>
+            <div class="f4-bar" id="f4-b3" style="height: 80px; background: #ff7ea2;"></div>
+            <div class="f4-bar" id="f4-b4" style="height: 140px;"></div>
+          </div>
+          <svg id="f4-wave" viewBox="0 0 420 140">
+            <path id="f4-wave-path" d="M10 100 C 60 20, 110 20, 160 70 S 260 130, 310 60 S 390 20, 410 40" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-dasharray="560" stroke-dashoffset="560"></path>
+          </svg>
+          <div id="f4-play"><svg width="62" height="62" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#ffffff"/></svg></div>
+          <div id="f4-ctrl">
+            <svg width="30" height="30" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="#ffffff"/></svg>
+            <div id="f4-track"><div id="f4-fill"></div></div>
+            <div id="f4-time">0:30</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="f4-logo">
+        <div id="f4-icon">
+          <svg width="104" height="104" viewBox="0 0 48 48">
+            <defs><linearGradient id="f4-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5c7a"></stop><stop offset="1" stop-color="#ff7ea2"></stop></linearGradient></defs>
+            <path d="M15 10.5c0-2.3 2.5-3.7 4.5-2.5l19 12.1c1.8 1.2 1.8 3.8 0 5L19.5 37.2c-2 1.3-4.5-.2-4.5-2.5z" fill="url(#f4-ig)"></path>
+            <path d="M5 30c5-6 9 4 14-2" fill="none" stroke="#0f172b" stroke-width="3.6" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div id="f4-word">
+          <span class="f4-ch-mask"><span class="f4-ch">M</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">t</span></span><span class="f4-ch-mask"><span class="f4-ch">i</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">n</span></span><span class="f4-ch-mask"><span class="f4-ch">o</span></span><span class="f4-ch-mask"><span class="f4-ch">v</span></span><span class="f4-ch-mask"><span class="f4-ch">a</span></span>
+        </div>
+      </div>
+
+      <div class="f4-chip" id="f4-c1">
+        <svg width="50" height="50" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#ff5c7a"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Claire
+      </div>
+      <div class="f4-chip" id="f4-c2">
+        <svg width="50" height="50" viewBox="0 0 24 24"><path d="M13.5 2L4 13.5h6.5L9.5 22 20 9.5h-6.5z" fill="#ff5c7a"/></svg>
+        Percutante
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+
+      // Circle reveal grows out of the "?" (match cut from frame 3)
+      tl.fromTo("#f4-circle", { clipPath: "circle(200px at 50% 50%)" }, { clipPath: "circle(1250px at 50% 50%)", duration: 0.5, ease: "expo.inOut" }, 0.02);
+      tl.fromTo("#f4-q", { scale: 1, opacity: 1 }, { scale: 2.4, opacity: 0, filter: "blur(10px)", duration: 0.32, ease: "power3.in" }, 0.04);
+      tl.fromTo("#f4-waves", { x: 0 }, { x: -1920, duration: 4.1, ease: "none" }, 0);
+
+      // Wordmark: icon spins in, letters rise (on "Motion Nova")
+      tl.fromTo("#f4-icon", { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 0.22);
+      tl.fromTo("#f4-word .f4-ch", { yPercent: 115 }, { yPercent: 0, duration: 0.5, ease: "power3.out", stagger: 0.03 }, 0.28);
+
+      // "transforme" — logo lifts to header, the player builds
+      tl.to("#f4-logo", { y: -405, scale: 0.4, duration: 0.6, ease: "power3.inOut" }, 0.92);
+      tl.fromTo("#f4-player", { y: 380, scale: 0.7, rotationX: 30, opacity: 0, transformPerspective: 1600 }, { y: 0, scale: 1, rotationX: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.0);
+
+      // "vidéo" — play button pops, then is pressed on "motion design"
+      tl.fromTo("#f4-play", { scale: 0 }, { scale: 1, duration: 0.38, ease: "expo.out" }, 1.45);
+      tl.to("#f4-play", { scale: 0.86, duration: 0.1, ease: "power2.in" }, 1.84);
+      tl.to("#f4-play", { scale: 0, opacity: 0, duration: 0.3, ease: "power3.in" }, 1.95);
+
+      // Motion design plays inside the screen
+      tl.fromTo("#f4-sh-circle", { x: -260, scale: 0.3 }, { x: 0, scale: 1, duration: 0.6, ease: "expo.out" }, 1.95);
+      tl.fromTo("#f4-sh-square", { y: -300, rotation: -180 }, { y: 0, rotation: 0, duration: 0.7, ease: "expo.out" }, 2.03);
+      tl.fromTo("#f4-sh-ring", { scale: 0 }, { scale: 1, duration: 0.6, ease: "expo.out" }, 2.1);
+      ["#f4-b1", "#f4-b2", "#f4-b3", "#f4-b4"].forEach((id, i) => {
+        tl.fromTo(id, { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power3.out" }, 2.2 + i * 0.07);
+      });
+      tl.fromTo("#f4-wave-path", { attr: { "stroke-dashoffset": 560 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power3.inOut" }, 2.3);
+      tl.to("#f4-sh-square", { rotation: 90, duration: 1.2, ease: "power2.inOut" }, 2.8);
+      tl.to("#f4-sh-circle", { x: 40, y: -20, duration: 1.2, ease: "power2.inOut" }, 2.8);
+      tl.fromTo("#f4-fill", { scaleX: 0 }, { scaleX: 1, duration: 2.1, ease: "none" }, 1.95);
+
+      // "claire" / "percutante" chips slam on cue
+      tl.fromTo("#f4-c1", { scale: 1.5, opacity: 0, rotation: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, rotation: -6, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 2.76);
+      tl.fromTo("#f4-c2", { scale: 1.5, opacity: 0, rotation: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, rotation: 5, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 3.34);
+      tl.to("#f4-player", { keyframes: [{ x: -10, duration: 0.05 }, { x: 8, duration: 0.05 }, { x: 0, duration: 0.06 }] }, 3.36);
+
+      window.__timelines["04-reveal"] = tl;
+    })();
+  </script>
+</template>
