@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="fr" data-composition-variables="[
+    {&quot;id&quot;:&quot;brand&quot;,&quot;type&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Nom de la boulangerie&quot;,&quot;default&quot;:&quot;Maison Dorée&quot;},
+    {&quot;id&quot;:&quot;cta&quot;,&quot;type&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Texte du bouton&quot;,&quot;default&quot;:&quot;Commander en ligne&quot;},
+    {&quot;id&quot;:&quot;info&quot;,&quot;type&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Ligne infos (site · horaires)&quot;,&quot;default&quot;:&quot;maison-doree.fr  ·  Ouvert 7j/7 dès 6h30&quot;}
+  ]">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Fraunces";
+        src: url("assets/fonts/Fraunces-Roman.woff2") format("woff2");
+        font-weight: 100 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Fraunces";
+        src: url("assets/fonts/Fraunces-Italic.woff2") format("woff2");
+        font-weight: 100 900;
+        font-style: italic;
+      }
+
+      /* Palette — crème / croûte / four */
+      :root {
+        --cream: #f4eadb;
+        --butter: #ecd2a2;
+        --ink: #2a170d;
+        --oven: #2b170d;
+        --caramel: #a84c16;
+        --crust: #c2611f;
+        --gold: #e8a93c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #2b170d;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #f4eadb;
+        font-family: "Fraunces", serif;
+        color: #2a170d;
+      }
+
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #s1 {
+        z-index: 1;
+        background: #f4eadb;
+      }
+      #s2 {
+        z-index: 3;
+        background: #2b170d;
+        opacity: 0;
+      }
+      #s3 {
+        z-index: 4;
+        background: #f4eadb;
+        opacity: 0;
+      }
+      #s4 {
+        z-index: 5;
+        background: #e8a93c;
+        opacity: 0;
+      }
+      #s5 {
+        z-index: 6;
+        background: #2b170d;
+        opacity: 0;
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .it {
+        font-style: italic;
+      }
+
+      /* ---------- Overlays (transitions + texture) ---------- */
+      #iris-a {
+        position: absolute;
+        z-index: 2;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #c2611f;
+        opacity: 0;
+      }
+      .leak {
+        position: absolute;
+        z-index: 30;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #leak-warm {
+        left: -200px;
+        top: -200px;
+        width: 2320px;
+        height: 1480px;
+        background: #ffc766;
+      }
+      #leak-1 {
+        left: -1200px;
+        top: -900px;
+        width: 2800px;
+        height: 2800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 244, 214, 1) 0%, rgba(255, 210, 120, 0.7) 30%, rgba(255, 190, 90, 0) 65%);
+      }
+      #leak-2 {
+        left: 400px;
+        top: -600px;
+        width: 2600px;
+        height: 2600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 170, 70, 0.9) 0%, rgba(240, 120, 40, 0.5) 35%, rgba(240, 120, 40, 0) 65%);
+      }
+      .blk {
+        position: absolute;
+        z-index: 25;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #blk1 {
+        background: #c2611f;
+      }
+      #blk2 {
+        background: #f4eadb;
+      }
+      #blk3 {
+        background: #2b170d;
+      }
+      #grain {
+        position: absolute;
+        z-index: 40;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        opacity: 0.16;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+
+      /* ---------- Shared bits ---------- */
+      .label {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        font-size: 26px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .rule {
+        display: block;
+        width: 90px;
+        height: 4px;
+        background: currentColor;
+        transform-origin: 0 50%;
+      }
+      .ghost {
+        position: absolute;
+        overflow: visible;
+        pointer-events: none;
+      }
+      .steam {
+        position: absolute;
+        pointer-events: none;
+      }
+      .steam path {
+        fill: none;
+        stroke-linecap: round;
+      }
+
+      /* ---------- S1 · Hook ---------- */
+      #s1-cam {
+        position: absolute;
+        inset: 0;
+        transform-origin: 32% 58%;
+      }
+      #s1-ghost {
+        left: 600px;
+        top: 640px;
+        width: 1460px;
+        height: 468px;
+      }
+      .s1-top {
+        position: absolute;
+        left: 140px;
+        right: 140px;
+        top: 96px;
+        display: flex;
+        justify-content: space-between;
+        color: #2a170d;
+      }
+      .s1-head {
+        position: absolute;
+        left: 140px;
+        top: 230px;
+        font-size: 196px;
+        line-height: 0.96;
+        letter-spacing: -0.035em;
+      }
+      .line {
+        overflow: hidden;
+        padding: 0 0.08em 0.14em 0;
+        margin-bottom: -0.14em;
+      }
+      .li {
+        display: block;
+        font-weight: 900;
+        white-space: nowrap;
+        transform-origin: 0 100%;
+      }
+      .li.it {
+        font-weight: 400;
+        color: #a84c16;
+      }
+      #s1-dot {
+        display: inline-block;
+        width: 0.19em;
+        height: 0.19em;
+        margin-left: 0.05em;
+        border-radius: 50%;
+        background: #c2611f;
+      }
+      #s1-wheat {
+        position: absolute;
+        right: 150px;
+        bottom: -60px;
+        width: 520px;
+        height: 900px;
+      }
+      .ear {
+        position: absolute;
+        left: 180px;
+        bottom: 0;
+        width: 160px;
+        height: 640px;
+        transform-origin: 50% 100%;
+      }
+      .ear-in {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 100%;
+      }
+      .ear svg {
+        width: 160px;
+        height: 640px;
+        overflow: visible;
+      }
+      #s1-steam {
+        left: 1240px;
+        top: 360px;
+        width: 360px;
+        height: 520px;
+      }
+      #s1-sub {
+        position: absolute;
+        left: 146px;
+        bottom: 120px;
+        font-size: 30px;
+        color: #2a170d;
+        letter-spacing: 0.2em;
+      }
+
+      /* ---------- S2 · Viennoiseries ---------- */
+      #s2-glow {
+        position: absolute;
+        left: -260px;
+        top: -400px;
+        width: 1640px;
+        height: 1640px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(226, 132, 48, 0.5) 0%, rgba(194, 97, 31, 0.26) 34%, rgba(43, 23, 13, 0) 66%);
+      }
+      #s2-ghost {
+        left: -40px;
+        top: 760px;
+        width: 1813px;
+        height: 343px;
+      }
+      #s2-ring {
+        position: absolute;
+        left: 170px;
+        top: 150px;
+        width: 780px;
+        height: 780px;
+      }
+      #s2-ring svg {
+        width: 780px;
+        height: 780px;
+      }
+      #s2-crois {
+        position: absolute;
+        left: 120px;
+        top: 300px;
+        width: 880px;
+        height: 576px;
+      }
+      #s2-crois-float {
+        position: absolute;
+        inset: 0;
+      }
+      #s2-crois svg {
+        width: 880px;
+        height: 576px;
+        overflow: visible;
+      }
+      #s2-crumbs {
+        position: absolute;
+        left: 560px;
+        top: 590px;
+        width: 0;
+        height: 0;
+      }
+      .crumb {
+        position: absolute;
+        border-radius: 50%;
+        background: #e8a93c;
+      }
+      #s2-steam {
+        left: 380px;
+        top: 40px;
+        width: 360px;
+        height: 420px;
+      }
+      .s2-right {
+        position: absolute;
+        left: 1030px;
+        top: 300px;
+        width: 800px;
+      }
+      #s2-label {
+        color: #e8a93c;
+      }
+      #s2-slot {
+        position: relative;
+        height: 190px;
+        margin-top: 40px;
+      }
+      .word {
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 150px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.035em;
+        color: #f4eadb;
+        white-space: nowrap;
+        opacity: 0;
+        transform-origin: 0 60%;
+      }
+      .word.it {
+        font-weight: 600;
+        color: #e8a93c;
+      }
+      .ticks {
+        display: flex;
+        gap: 14px;
+        margin-top: 34px;
+      }
+      .tick {
+        display: block;
+        width: 120px;
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(244, 234, 219, 0.22);
+        overflow: hidden;
+      }
+      .tick i {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #e8a93c;
+        transform-origin: 0 50%;
+      }
+      #s2-sub {
+        margin-top: 40px;
+        font-size: 28px;
+        color: #f4eadb;
+      }
+
+      /* ---------- S3 · La fournée ---------- */
+      .s3-top {
+        position: absolute;
+        z-index: 3;
+        left: 140px;
+        right: 140px;
+        top: 96px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #2a170d;
+      }
+      #s3-counter {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: 0.16em;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .ticker {
+        display: block;
+        height: 40px;
+        overflow: hidden;
+      }
+      #s3-tick-col {
+        display: flex;
+        flex-direction: column;
+        line-height: 40px;
+      }
+      #s3-track {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 5760px;
+        height: 1080px;
+      }
+      .station {
+        position: absolute;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #st1 {
+        left: 0;
+      }
+      #st2 {
+        left: 1920px;
+      }
+      #st3 {
+        left: 3840px;
+      }
+      .plate {
+        position: absolute;
+        left: 170px;
+        top: 190px;
+        width: 760px;
+        height: 760px;
+        border-radius: 50%;
+        background: #ecd2a2;
+      }
+      .plate-ring {
+        position: absolute;
+        left: 130px;
+        top: 150px;
+        width: 840px;
+        height: 840px;
+        border-radius: 50%;
+        border: 3px dashed rgba(168, 76, 22, 0.45);
+      }
+      .illus {
+        position: absolute;
+        left: 90px;
+        top: 300px;
+        width: 920px;
+        height: 520px;
+      }
+      .illus svg {
+        width: 920px;
+        height: 520px;
+        overflow: visible;
+      }
+      .st-text {
+        position: absolute;
+        left: 1060px;
+        top: 330px;
+        width: 760px;
+      }
+      .st-num {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 0.2em;
+        color: #a84c16;
+      }
+      .st-pre {
+        margin-top: 26px;
+        font-size: 72px;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1;
+        color: #a84c16;
+      }
+      .st-name {
+        font-size: 150px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.035em;
+        white-space: nowrap;
+        color: #2a170d;
+      }
+      .st-desc {
+        margin-top: 34px;
+        font-size: 26px;
+        color: #2a170d;
+      }
+      #s3-progress {
+        position: absolute;
+        left: 140px;
+        right: 140px;
+        bottom: 92px;
+        height: 6px;
+        background: rgba(42, 23, 13, 0.15);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      #s3-bar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #c2611f;
+        transform-origin: 0 50%;
+      }
+
+      /* ---------- S4 · Promesse ---------- */
+      #s4-rays {
+        position: absolute;
+        left: -540px;
+        top: -1000px;
+        width: 3000px;
+        height: 3000px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(from 0deg, rgba(255, 240, 205, 0.32) 0deg 5deg, rgba(255, 240, 205, 0) 5deg 15deg);
+      }
+      #s4-glow {
+        position: absolute;
+        left: -300px;
+        top: -300px;
+        width: 1700px;
+        height: 1700px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 236, 190, 0.7) 0%, rgba(255, 236, 190, 0) 60%);
+      }
+      .s4-left {
+        position: absolute;
+        left: 120px;
+        top: 200px;
+        width: 960px;
+      }
+      #s4-label {
+        color: #2a170d;
+        margin-left: 20px;
+      }
+      #s4-big {
+        display: flex;
+        align-items: flex-start;
+        transform-origin: 20% 60%;
+        color: #2a170d;
+      }
+      #s4-num {
+        display: block;
+        width: 720px;
+        text-align: right;
+        font-size: 420px;
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+        font-variant-numeric: tabular-nums lining-nums;
+      }
+      #s4-pct {
+        display: block;
+        margin-top: 50px;
+        font-size: 210px;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1;
+      }
+      .s4-right {
+        position: absolute;
+        left: 1110px;
+        top: 300px;
+        width: 720px;
+        color: #2a170d;
+      }
+      .fm-line {
+        overflow: hidden;
+        padding: 0 0.1em 0.32em 0.16em;
+        margin: 0 0 -0.2em -0.16em;
+      }
+      #s4-fm {
+        display: block;
+        font-size: 128px;
+        font-style: italic;
+        font-weight: 600;
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        white-space: nowrap;
+      }
+      #s4-swash {
+        display: block;
+        width: 560px;
+        height: 40px;
+        margin-top: -6px;
+        overflow: visible;
+      }
+      .checks {
+        list-style: none;
+        margin-top: 46px;
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+      .checks li {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .chk {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        border-radius: 50%;
+        background: #2a170d;
+      }
+      .chk svg {
+        width: 30px;
+        height: 30px;
+      }
+      .chk-txt {
+        display: block;
+      }
+
+      /* ---------- S5 · CTA ---------- */
+      #s5-glow {
+        position: absolute;
+        left: 160px;
+        top: -560px;
+        width: 1600px;
+        height: 1600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(232, 169, 60, 0.42) 0%, rgba(194, 97, 31, 0.2) 38%, rgba(43, 23, 13, 0) 68%);
+      }
+      #s5-rays {
+        position: absolute;
+        left: -540px;
+        top: -1500px;
+        width: 3000px;
+        height: 3000px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(from 0deg, rgba(232, 169, 60, 0.13) 0deg 4deg, rgba(232, 169, 60, 0) 4deg 14deg);
+      }
+      .s5-center {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      #s5-emblem {
+        position: relative;
+        width: 170px;
+        height: 170px;
+      }
+      #s5-emblem svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 170px;
+        height: 170px;
+        overflow: visible;
+      }
+      #s5-ringtext {
+        transform-origin: 50% 50%;
+      }
+      #s5-name {
+        margin-top: 26px;
+        font-size: 160px;
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        color: #f4eadb;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0 0.06em 0.06em;
+      }
+      #s5-name .ch {
+        display: inline-block;
+      }
+      #s5-kicker {
+        margin-top: 8px;
+        font-size: 24px;
+        letter-spacing: 0.34em;
+        color: #e8a93c;
+      }
+      #s5-tag {
+        margin-top: 30px;
+        font-size: 56px;
+        font-style: italic;
+        font-weight: 400;
+        color: #f4eadb;
+      }
+      .cta-wrap {
+        position: relative;
+        margin-top: 48px;
+      }
+      #s5-cta {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 30px 58px 32px 64px;
+        border-radius: 999px;
+        background: #e8a93c;
+        color: #2a170d;
+        font-size: 50px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        overflow: hidden;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      }
+      #s5-arrow {
+        display: block;
+        width: 46px;
+        height: 46px;
+      }
+      #s5-shine {
+        position: absolute;
+        top: -20px;
+        left: 0;
+        width: 120px;
+        height: 160px;
+        background: linear-gradient(100deg, rgba(255, 250, 235, 0) 0%, rgba(255, 250, 235, 0.75) 50%, rgba(255, 250, 235, 0) 100%);
+      }
+      #s5-ripple {
+        position: absolute;
+        left: 90%;
+        top: 70%;
+        width: 60px;
+        height: 60px;
+        margin: -30px 0 0 -30px;
+        border-radius: 50%;
+        border: 4px solid #f4eadb;
+        opacity: 0;
+      }
+      #s5-cursor {
+        position: absolute;
+        left: 90%;
+        top: 70%;
+        width: 54px;
+        height: 64px;
+        margin: -4px 0 0 -6px;
+        overflow: visible;
+        transform-origin: 6px 4px;
+      }
+      #s5-info {
+        margin-top: 44px;
+        font-size: 26px;
+        letter-spacing: 0.16em;
+        color: #f4eadb;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-kbh8" id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1920" data-height="1080">
+      <!-- ============ S1 · Accroche ============ -->
+      <div data-hf-id="hf-yihu" id="s1" class="scene">
+        <div data-hf-id="hf-d2kf" id="s1-cam">
+          <svg data-hf-id="hf-bkl5" id="s1-ghost" class="ghost" viewBox="0 -760 2434 780" data-layout-ignore="" aria-hidden="true"><path data-hf-id="hf-5nmm" d="M671.0 -425.0Q671.0 -357.5 638.0 -308.25Q605.0 -259.0 546.5 -232.5Q488.0 -206.0 412.0 -206.0Q345.0 -206.0 305.75 -220.0Q266.5 -234.0 235.0 -258.5L237.0 -269.0Q260.0 -253.0 277.25 -243.25Q294.5 -233.5 310.5 -229.25Q326.5 -225.0 344.5 -225.0Q374.0 -225.0 401.0 -246.5Q428.0 -268.0 445.5 -313.0Q463.0 -358.0 463.0 -428.5Q463.0 -514.0 443.5 -571.75Q424.0 -629.5 392.0 -658.75Q360.0 -688.0 323.0 -688.0H304.0V-30.5Q304.0 -23.5 309.75 -20.0Q315.5 -16.5 327.0 -14.0L357.0 -8.5Q360.0 -8.0 361.5 -7.0Q363.0 -6.0 363.0 -4.0Q363.0 -2.5 361.75 -1.25Q360.5 0.0 357.5 0.0H37.0Q34.0 0.0 32.5 -1.25Q31.0 -2.5 31.0 -4.5Q31.0 -7.5 38.0 -9.0L68.5 -14.5Q79.5 -16.5 84.75 -20.25Q90.0 -24.0 90.0 -29.0V-667.5Q90.0 -674.5 84.75 -679.0Q79.5 -683.5 69.0 -685.5L36.5 -691.5Q31.0 -692.5 31.0 -695.5Q31.0 -698.0 32.25 -699.0Q33.5 -700.0 36.5 -700.0H323.0Q427.5 -700.0 505.75 -665.5Q584.0 -631.0 627.5 -569.0Q671.0 -507.0 671.0 -425.0Z M818.0 -268.0H1059.0L1061.0 -256.0H815.0ZM874.5 -4.0Q874.5 -2.5 873.25 -1.25Q872.0 0.0 869.5 0.0H677.5Q675.0 0.0 673.75 -1.25Q672.5 -2.5 672.5 -4.0Q672.5 -6.5 674.5 -7.5Q676.5 -8.5 678.5 -9.0L688.5 -12.5Q709.5 -20.0 732.25 -44.5Q755.0 -69.0 768.0 -114.0L909.0 -611.5Q917.0 -640.0 910.75 -657.0Q904.5 -674.0 891.0 -685.0Q883.0 -691.5 879.0 -692.75Q875.0 -694.0 875.0 -696.0Q875.0 -698.5 876.5 -699.25Q878.0 -700.0 881.0 -700.0H1149.0Q1152.0 -700.0 1153.5 -699.25Q1155.0 -698.5 1155.0 -696.0Q1155.0 -694.0 1151.5 -692.0Q1148.0 -690.0 1139.0 -686.0Q1132.5 -683.0 1130.25 -676.75Q1128.0 -670.5 1133.0 -654.0L1326.0 -36.0Q1329.5 -25.5 1335.75 -19.25Q1342.0 -13.0 1350.0 -10.5Q1354.5 -9.0 1356.25 -7.75Q1358.0 -6.5 1358.0 -4.0Q1358.0 -2.5 1356.5 -1.25Q1355.0 0.0 1352.0 0.0H1065.0Q1062.0 0.0 1060.5 -1.25Q1059.0 -2.5 1059.0 -4.0Q1059.0 -6.5 1060.75 -7.0Q1062.5 -7.5 1067.0 -9.0L1084.0 -14.0Q1098.5 -18.5 1101.0 -25.25Q1103.5 -32.0 1099.0 -47.0L920.0 -619.0L936.0 -662.0L779.5 -111.0Q772.5 -86.5 781.5 -67.25Q790.5 -48.0 810.75 -34.25Q831.0 -20.5 858.5 -12.0L868.5 -9.0Q872.0 -8.0 873.25 -7.0Q874.5 -6.0 874.5 -4.0Z M1662.0 -29.0Q1662.0 -23.19642857142857 1668.0 -19.598214285714285Q1674.0 -16.0 1685.0 -14.0L1713.0 -9.0Q1721.0 -7.5 1721.0 -4.1803278688524586Q1721.0 -2.274590163934427 1719.5348837209303 -1.1372950819672134Q1718.0697674418604 0.0 1715.0 0.0H1395.0Q1391.9302325581396 0.0 1390.4651162790697 -1.1372950819672134Q1389.0 -2.274590163934427 1389.0 -4.1803278688524586Q1389.0 -7.5 1397.0 -9.0L1425.0 -14.0Q1436.5 -16.0 1442.25 -19.598214285714285Q1448.0 -23.19642857142857 1448.0 -29.0V-671.0Q1448.0 -676.8035714285714 1442.25 -680.4017857142858Q1436.5 -684.0 1425.0 -686.0L1397.0 -691.0Q1389.0 -692.3513513513514 1389.0 -696.0Q1389.0 -697.5 1390.4651162790697 -698.75Q1391.9302325581396 -700.0 1395.0 -700.0H1715.0Q1718.0697674418604 -700.0 1719.5348837209303 -698.75Q1721.0 -697.5 1721.0 -696.0Q1721.0 -692.3513513513514 1713.0 -691.0L1685.0 -686.0Q1674.0 -684.0 1668.0 -680.4017857142858Q1662.0 -676.8035714285714 1662.0 -671.0Z M1959.0 -4.0Q1959.0 -2.5 1957.75 -1.25Q1956.5 0.0 1954.0 0.0H1762.0Q1759.5 0.0 1758.25 -1.25Q1757.0 -2.5 1757.0 -4.0Q1757.0 -7.0 1763.0 -9.0L1773.0 -12.0Q1805.5 -22.0 1828.75 -46.25Q1852.0 -70.5 1852.0 -113.5V-577.0Q1852.0 -583.0 1851.5 -585.75Q1851.0 -588.5 1847.0 -595.0L1799.0 -682.0Q1796.5 -687.0 1793.25 -691.5Q1790.0 -696.0 1790.0 -698.0Q1790.0 -699.0 1791.0 -699.5Q1792.0 -700.0 1795.0 -700.0H2029.0Q2031.5 -700.0 2033.75 -698.5Q2036.0 -697.0 2038.0 -693.0L2337.0 -111.0L2327.0 -87.0V-586.5Q2327.0 -629.5 2304.0 -654.0Q2281.0 -678.5 2248.0 -688.0L2238.0 -691.0Q2232.0 -693.0 2232.0 -696.0Q2232.0 -697.5 2233.25 -698.75Q2234.5 -700.0 2237.0 -700.0H2429.0Q2431.5 -700.0 2432.75 -698.75Q2434.0 -697.5 2434.0 -696.0Q2434.0 -693.0 2428.0 -691.0L2418.0 -688.0Q2385.5 -678.5 2362.25 -654.0Q2339.0 -629.5 2339.0 -586.5V-116.0Q2339.0 -109.5 2341.0 -104.25Q2343.0 -99.0 2345.0 -95.0L2383.0 -29.0Q2390.0 -16.5 2392.0 -11.5Q2394.0 -6.5 2394.0 -4.0Q2394.0 -2.5 2392.5 -1.25Q2391.0 0.0 2387.0 0.0H2168.0Q2161.0 0.0 2161.0 -8.0Q2161.0 -11.0 2159.5 -16.75Q2158.0 -22.5 2156.0 -26.0L1834.0 -627.0H1864.0V-113.0Q1864.0 -70.5 1887.5 -46.25Q1911.0 -22.0 1943.0 -12.0L1953.0 -9.0Q1959.0 -7.0 1959.0 -4.0Z" fill="none" stroke="#c2611f" stroke-opacity="0.26" stroke-width="4" vector-effect="non-scaling-stroke" /></svg>
+          <div data-hf-id="hf-rp6y" class="s1-top">
+            <div data-hf-id="hf-x0aa" class="label"><span data-hf-id="hf-ni1c" class="rule" id="s1-rule"></span><span data-hf-id="hf-pvj6" id="s1-label-txt">06:30 — Sortie du four</span></div>
+            <div data-hf-id="hf-ch5g" class="label" id="s1-brand">Maison Dorée</div>
+          </div>
+          <div data-hf-id="hf-sg2v" class="s1-head">
+            <div data-hf-id="hf-np12" class="line"><div data-hf-id="hf-nhk6" class="li" id="s1-l1">Le pain</div></div>
+            <div data-hf-id="hf-sogq" class="line"><div data-hf-id="hf-wjz2" class="li it" id="s1-l2">se lève</div></div>
+            <div data-hf-id="hf-t2rr" class="line"><div data-hf-id="hf-u9zo" class="li" id="s1-l3">avant vous<span data-hf-id="hf-bfbw" id="s1-dot"></span></div></div>
+          </div>
+          <div data-hf-id="hf-d5ns" id="s1-sub" class="mono">Boulangerie · Pâtisserie artisanale</div>
+          <svg data-hf-id="hf-v6vd" id="s1-steam" class="steam" viewBox="0 0 360 520">
+            <path data-hf-id="hf-v30p" class="wisp" d="M80 500 C 40 430, 120 380, 80 310 S 40 200, 90 130" stroke="#c2611f" stroke-opacity="0.35" stroke-width="12" />
+            <path data-hf-id="hf-wzmy" class="wisp" d="M180 500 C 140 420, 220 370, 180 290 S 140 180, 190 110" stroke="#c2611f" stroke-opacity="0.3" stroke-width="10" />
+            <path data-hf-id="hf-wjms" class="wisp" d="M280 500 C 240 440, 320 390, 280 320 S 240 220, 290 150" stroke="#c2611f" stroke-opacity="0.28" stroke-width="9" />
+          </svg>
+          <div data-hf-id="hf-o9xv" id="s1-wheat"></div>
+        </div>
+      </div>
+
+      <!-- ============ S2 · Viennoiseries ============ -->
+      <div data-hf-id="hf-ukdt" id="s2" class="scene">
+        <div data-hf-id="hf-junb" id="s2-glow" data-layout-allow-overflow=""></div>
+        <svg data-hf-id="hf-44nu" id="s2-ghost" class="ghost" viewBox="0 -760 4120 780" data-layout-ignore="" aria-hidden="true"><path data-hf-id="hf-ah0w" d="M690.0 -166.0Q690.0 -92.5 626.0 -46.25Q562.0 0.0 435.0 0.0H37.0Q34.0 0.0 32.5 -1.25Q31.0 -2.5 31.0 -4.0Q31.0 -7.5 39.0 -9.0L67.0 -14.0Q79.0 -16.5 84.5 -22.25Q90.0 -28.0 90.0 -40.0V-671.0Q90.0 -677.0 85.75 -680.25Q81.5 -683.5 67.0 -686.0L39.0 -691.0Q31.0 -692.5 31.0 -696.0Q31.0 -697.5 32.5 -698.75Q34.0 -700.0 37.0 -700.0H314.0Q422.0 -700.0 497.0 -673.75Q572.0 -647.5 611.0 -601.5Q650.0 -555.5 650.0 -496.0Q650.0 -444.0 619.75 -406.25Q589.5 -368.5 534.5 -348.25Q479.5 -328.0 405.0 -328.0L439.0 -332.0Q512.0 -332.0 568.75 -311.0Q625.5 -290.0 657.75 -252.5Q690.0 -215.0 690.0 -166.0ZM356.0 -321.0H285.0V-333.0H356.0Q393.0 -333.0 417.0 -348.25Q441.0 -363.5 452.5 -396.25Q464.0 -429.0 464.0 -481.0Q464.0 -544.0 442.5 -590.5Q421.0 -637.0 386.0 -662.5Q351.0 -688.0 310.0 -688.0H299.0V-34.0Q299.0 -21.5 307.0 -16.75Q315.0 -12.0 329.0 -12.0H375.0Q408.0 -12.0 432.0 -31.25Q456.0 -50.5 469.0 -86.0Q482.0 -121.5 482.0 -171.0Q482.0 -242.5 450.25 -281.75Q418.5 -321.0 356.0 -321.0Z M984.0 -378.0H1071.0Q1119.0 -378.0 1143.0 -399.25Q1167.0 -420.5 1178.0 -479.0Q1179.0 -483.0 1180.25 -484.0Q1181.5 -485.0 1183.0 -485.0Q1187.5 -485.0 1189.0 -479.0L1249.0 -280.0Q1250.0 -277.0 1249.25 -275.0Q1248.5 -273.0 1247.0 -272.0Q1245.5 -271.5 1243.75 -271.25Q1242.0 -271.0 1239.0 -274.0Q1209.5 -311.0 1186.5 -331.0Q1163.5 -351.0 1140.0 -358.5Q1116.5 -366.0 1086.0 -366.0H984.0ZM742.0 -696.0Q742.0 -697.5 743.5 -698.75Q745.0 -700.0 748.0 -700.0H1215.0Q1227.5 -700.0 1238.0 -702.75Q1248.5 -705.5 1255.75 -708.25Q1263.0 -711.0 1265.0 -711.0Q1266.5 -711.0 1267.5 -708.75Q1268.5 -706.5 1270.0 -699.0L1319.0 -490.0Q1320.0 -485.5 1319.25 -483.75Q1318.5 -482.0 1317.0 -481.0Q1315.5 -480.5 1314.0 -481.25Q1312.5 -482.0 1310.0 -485.0Q1263.0 -549.0 1227.0 -588.75Q1191.0 -628.5 1161.5 -650.25Q1132.0 -672.0 1105.5 -680.0Q1079.0 -688.0 1051.0 -688.0H1015.0V-37.0Q1015.0 -24.5 1021.5 -18.25Q1028.0 -12.0 1040.0 -12.0H1059.0Q1090.5 -12.0 1126.75 -32.25Q1163.0 -52.5 1210.0 -107.0Q1257.0 -161.5 1320.0 -265.0Q1322.5 -268.0 1324.0 -269.0Q1325.5 -270.0 1327.0 -269.0Q1328.5 -268.5 1329.25 -266.5Q1330.0 -264.5 1329.0 -260.0L1270.0 -1.0Q1268.5 6.5 1267.5 8.75Q1266.5 11.0 1265.0 11.0Q1263.0 11.0 1255.75 8.25Q1248.5 5.5 1238.0 2.75Q1227.5 0.0 1215.0 0.0H748.0Q745.0 0.0 743.5 -1.25Q742.0 -2.5 742.0 -4.0Q742.0 -7.5 750.0 -9.0L778.0 -14.0Q789.5 -16.0 795.25 -19.5Q801.0 -23.0 801.0 -29.0V-671.0Q801.0 -677.0 795.25 -680.5Q789.5 -684.0 778.0 -686.0L750.0 -691.0Q742.0 -692.5 742.0 -696.0Z M1931.5 -312.0 1913.5 -585.5Q1911.0 -627.0 1891.75 -651.75Q1872.5 -676.5 1834.0 -688.0L1824.0 -691.0Q1820.5 -692.0 1819.25 -693.0Q1818.0 -694.0 1818.0 -696.0Q1818.0 -697.5 1819.25 -698.75Q1820.5 -700.0 1823.0 -700.0H2015.0Q2017.5 -700.0 2018.75 -698.75Q2020.0 -697.5 2020.0 -696.0Q2020.0 -694.0 2018.5 -693.0Q2017.0 -692.0 2014.0 -691.0L2003.5 -688.0Q1967.0 -677.5 1945.0 -651.25Q1923.0 -625.0 1925.5 -588.0L1943.5 -317.0Q1945.5 -290.0 1947.0 -263.5Q1948.5 -237.0 1948.5 -209.0Q1948.5 -148.5 1926.75 -98.75Q1905.0 -49.0 1854.25 -19.5Q1803.5 10.0 1716.5 10.0Q1613.5 10.0 1547.25 -16.75Q1481.0 -43.5 1449.25 -90.5Q1417.5 -137.5 1417.5 -198.0Q1417.5 -212.0 1419.0 -234.5Q1420.5 -257.0 1422.5 -279.75Q1424.5 -302.5 1425.5 -318.0L1448.5 -671.0Q1449.0 -677.0 1443.0 -680.5Q1437.0 -684.0 1425.5 -686.0L1397.5 -691.0Q1389.5 -692.5 1389.5 -696.0Q1389.5 -697.5 1391.0 -698.75Q1392.5 -700.0 1395.5 -700.0H1715.5Q1718.5 -700.0 1720.0 -698.75Q1721.5 -697.5 1721.5 -696.0Q1721.5 -694.0 1719.75 -693.0Q1718.0 -692.0 1713.5 -691.0L1682.5 -686.0Q1671.5 -684.0 1665.75 -680.5Q1660.0 -677.0 1659.5 -671.0L1636.5 -322.0Q1634.0 -283.0 1633.75 -250.25Q1633.5 -217.5 1633.5 -195.0Q1633.5 -93.0 1668.75 -50.0Q1704.0 -7.0 1756.5 -7.0Q1807.5 -7.0 1848.0 -30.0Q1888.5 -53.0 1912.0 -96.5Q1935.5 -140.0 1935.5 -201.0Q1935.5 -240.0 1934.25 -264.75Q1933.0 -289.5 1931.5 -312.0Z M2722.0 -449.0Q2722.0 -399.0 2698.75 -358.75Q2675.5 -318.5 2632.5 -291.5Q2589.5 -264.5 2529.0 -253.5Q2517.0 -251.5 2504.25 -250.0Q2491.5 -248.5 2478.25 -247.75Q2465.0 -247.0 2451.0 -247.0Q2405.0 -247.0 2376.5 -252.5Q2348.0 -258.0 2329.0 -267.75Q2310.0 -277.5 2292.0 -291.0L2298.0 -301.0Q2313.0 -288.5 2326.75 -280.75Q2340.5 -273.0 2356.25 -269.5Q2372.0 -266.0 2393.0 -266.0Q2444.0 -266.0 2475.5 -304.75Q2507.0 -343.5 2507.0 -434.0Q2507.0 -507.5 2484.75 -565.0Q2462.5 -622.5 2426.5 -655.25Q2390.5 -688.0 2349.0 -688.0H2328.0V-40.0Q2328.0 -28.0 2333.5 -22.25Q2339.0 -16.5 2351.0 -14.0L2379.0 -9.0Q2383.5 -8.5 2385.25 -7.5Q2387.0 -6.5 2387.0 -4.0Q2387.0 0.0 2381.0 0.0H2061.0Q2058.0 0.0 2056.5 -1.25Q2055.0 -2.5 2055.0 -4.0Q2055.0 -7.5 2063.0 -9.0L2091.0 -14.0Q2103.0 -16.5 2108.5 -22.25Q2114.0 -28.0 2114.0 -40.0V-671.0Q2114.0 -677.0 2108.25 -680.5Q2102.5 -684.0 2091.0 -686.0L2063.0 -691.0Q2055.0 -692.5 2055.0 -696.0Q2055.0 -697.5 2056.5 -698.75Q2058.0 -700.0 2061.0 -700.0H2348.0Q2462.5 -700.0 2546.5 -669.25Q2630.5 -638.5 2676.25 -582.25Q2722.0 -526.0 2722.0 -449.0ZM2379.0 -259.0 2577.0 -281.0 2717.0 -36.0Q2723.5 -25.0 2730.5 -18.75Q2737.5 -12.5 2748.0 -9.0Q2752.5 -7.5 2754.25 -7.0Q2756.0 -6.5 2756.0 -4.0Q2756.0 -2.5 2754.5 -1.25Q2753.0 0.0 2750.0 0.0H2462.0Q2456.0 0.0 2456.0 -4.0Q2456.0 -6.5 2458.0 -6.75Q2460.0 -7.0 2464.0 -9.0L2476.0 -14.0Q2489.5 -19.5 2494.75 -26.25Q2500.0 -33.0 2490.0 -51.0Z M3453.0 -449.0Q3453.0 -399.0 3429.75 -358.75Q3406.5 -318.5 3363.5 -291.5Q3320.5 -264.5 3260.0 -253.5Q3248.0 -251.5 3235.25 -250.0Q3222.5 -248.5 3209.25 -247.75Q3196.0 -247.0 3182.0 -247.0Q3136.0 -247.0 3107.5 -252.5Q3079.0 -258.0 3060.0 -267.75Q3041.0 -277.5 3023.0 -291.0L3029.0 -301.0Q3044.0 -288.5 3057.75 -280.75Q3071.5 -273.0 3087.25 -269.5Q3103.0 -266.0 3124.0 -266.0Q3175.0 -266.0 3206.5 -304.75Q3238.0 -343.5 3238.0 -434.0Q3238.0 -507.5 3215.75 -565.0Q3193.5 -622.5 3157.5 -655.25Q3121.5 -688.0 3080.0 -688.0H3059.0V-40.0Q3059.0 -28.0 3064.5 -22.25Q3070.0 -16.5 3082.0 -14.0L3110.0 -9.0Q3114.5 -8.5 3116.25 -7.5Q3118.0 -6.5 3118.0 -4.0Q3118.0 0.0 3112.0 0.0H2792.0Q2789.0 0.0 2787.5 -1.25Q2786.0 -2.5 2786.0 -4.0Q2786.0 -7.5 2794.0 -9.0L2822.0 -14.0Q2834.0 -16.5 2839.5 -22.25Q2845.0 -28.0 2845.0 -40.0V-671.0Q2845.0 -677.0 2839.25 -680.5Q2833.5 -684.0 2822.0 -686.0L2794.0 -691.0Q2786.0 -692.5 2786.0 -696.0Q2786.0 -697.5 2787.5 -698.75Q2789.0 -700.0 2792.0 -700.0H3079.0Q3193.5 -700.0 3277.5 -669.25Q3361.5 -638.5 3407.25 -582.25Q3453.0 -526.0 3453.0 -449.0ZM3110.0 -259.0 3308.0 -281.0 3448.0 -36.0Q3454.5 -25.0 3461.5 -18.75Q3468.5 -12.5 3479.0 -9.0Q3483.5 -7.5 3485.25 -7.0Q3487.0 -6.5 3487.0 -4.0Q3487.0 -2.5 3485.5 -1.25Q3484.0 0.0 3481.0 0.0H3193.0Q3187.0 0.0 3187.0 -4.0Q3187.0 -6.5 3189.0 -6.75Q3191.0 -7.0 3195.0 -9.0L3207.0 -14.0Q3220.5 -19.5 3225.75 -26.25Q3231.0 -33.0 3221.0 -51.0Z M3759.0 -378.0H3846.0Q3894.0 -378.0 3918.0 -399.25Q3942.0 -420.5 3953.0 -479.0Q3954.0 -483.0 3955.25 -484.0Q3956.5 -485.0 3958.0 -485.0Q3962.5 -485.0 3964.0 -479.0L4024.0 -280.0Q4025.0 -277.0 4024.25 -275.0Q4023.5 -273.0 4022.0 -272.0Q4020.5 -271.5 4018.75 -271.25Q4017.0 -271.0 4014.0 -274.0Q3984.5 -311.0 3961.5 -331.0Q3938.5 -351.0 3915.0 -358.5Q3891.5 -366.0 3861.0 -366.0H3759.0ZM3517.0 -696.0Q3517.0 -697.5 3518.5 -698.75Q3520.0 -700.0 3523.0 -700.0H3990.0Q4002.5 -700.0 4013.0 -702.75Q4023.5 -705.5 4030.75 -708.25Q4038.0 -711.0 4040.0 -711.0Q4041.5 -711.0 4042.5 -708.75Q4043.5 -706.5 4045.0 -699.0L4094.0 -490.0Q4095.0 -485.5 4094.25 -483.75Q4093.5 -482.0 4092.0 -481.0Q4090.5 -480.5 4089.0 -481.25Q4087.5 -482.0 4085.0 -485.0Q4038.0 -549.0 4002.0 -588.75Q3966.0 -628.5 3936.5 -650.25Q3907.0 -672.0 3880.5 -680.0Q3854.0 -688.0 3826.0 -688.0H3790.0V-37.0Q3790.0 -24.5 3796.5 -18.25Q3803.0 -12.0 3815.0 -12.0H3834.0Q3865.5 -12.0 3901.75 -32.25Q3938.0 -52.5 3985.0 -107.0Q4032.0 -161.5 4095.0 -265.0Q4097.5 -268.0 4099.0 -269.0Q4100.5 -270.0 4102.0 -269.0Q4103.5 -268.5 4104.25 -266.5Q4105.0 -264.5 4104.0 -260.0L4045.0 -1.0Q4043.5 6.5 4042.5 8.75Q4041.5 11.0 4040.0 11.0Q4038.0 11.0 4030.75 8.25Q4023.5 5.5 4013.0 2.75Q4002.5 0.0 3990.0 0.0H3523.0Q3520.0 0.0 3518.5 -1.25Q3517.0 -2.5 3517.0 -4.0Q3517.0 -7.5 3525.0 -9.0L3553.0 -14.0Q3564.5 -16.0 3570.25 -19.5Q3576.0 -23.0 3576.0 -29.0V-671.0Q3576.0 -677.0 3570.25 -680.5Q3564.5 -684.0 3553.0 -686.0L3525.0 -691.0Q3517.0 -692.5 3517.0 -696.0Z" fill="none" stroke="#e8a93c" stroke-opacity="0.22" stroke-width="3" vector-effect="non-scaling-stroke" /></svg>
+        <div data-hf-id="hf-p18h" id="s2-ring">
+          <svg data-hf-id="hf-0vgp" viewBox="0 0 780 780">
+            <circle data-hf-id="hf-0o4h" cx="390" cy="390" r="370" fill="none" stroke="#e8a93c" stroke-opacity="0.35" stroke-width="3" stroke-dasharray="4 18" stroke-linecap="round" />
+            <circle data-hf-id="hf-4xk7" cx="390" cy="390" r="330" fill="none" stroke="#e8a93c" stroke-opacity="0.18" stroke-width="2" />
+          </svg>
+        </div>
+        <svg data-hf-id="hf-jzlj" id="s2-steam" class="steam" viewBox="0 0 360 420">
+          <path data-hf-id="hf-hsu0" class="wisp" d="M90 400 C 50 330, 130 280, 90 210 S 50 100, 100 30" stroke="#f4eadb" stroke-opacity="0.32" stroke-width="12" />
+          <path data-hf-id="hf-cxpd" class="wisp" d="M190 400 C 150 320, 230 270, 190 190 S 150 80, 200 10" stroke="#f4eadb" stroke-opacity="0.28" stroke-width="10" />
+          <path data-hf-id="hf-kp1e" class="wisp" d="M290 400 C 250 340, 330 290, 290 220 S 250 120, 300 50" stroke="#f4eadb" stroke-opacity="0.24" stroke-width="9" />
+        </svg>
+        <div data-hf-id="hf-hnj3" id="s2-crois">
+          <div data-hf-id="hf-vysm" id="s2-crois-float">
+            <svg data-hf-id="hf-vc8l" viewBox="0 0 520 340">
+              <defs data-hf-id="hf-mh0t">
+                <radialgradient data-hf-id="hf-fuln" id="lobe" cx="0.4" cy="0.25" r="0.85">
+                  <stop data-hf-id="hf-empg" offset="0" stop-color="#ffdc94" />
+                  <stop data-hf-id="hf-ldfk" offset="0.4" stop-color="#e79c42" />
+                  <stop data-hf-id="hf-k2zt" offset="1" stop-color="#93441a" />
+                </radialgradient>
+                <radialgradient data-hf-id="hf-p52a" id="lobe-dark" cx="0.4" cy="0.25" r="0.85">
+                  <stop data-hf-id="hf-z0bs" offset="0" stop-color="#f6c06c" />
+                  <stop data-hf-id="hf-wh7b" offset="0.5" stop-color="#c9752d" />
+                  <stop data-hf-id="hf-lkd6" offset="1" stop-color="#6e300c" />
+                </radialgradient>
+                <clippath data-hf-id="hf-qrzw" id="crescent">
+                  <path data-hf-id="hf-jvw2" d="M28 288 C 14 150, 150 44, 260 44 C 370 44, 506 150, 492 288 C 452 292, 392 222, 260 220 C 128 222, 68 292, 28 288 Z" />
+                </clippath>
+              </defs>
+              <ellipse data-hf-id="hf-r1pv" cx="262" cy="306" rx="230" ry="20" fill="#000" fill-opacity="0.35" />
+              <g data-hf-id="hf-dfnz" clip-path="url(#crescent)" stroke="#6e300c" stroke-opacity="0.6" stroke-width="3">
+                <ellipse data-hf-id="hf-k0no" cx="46" cy="262" rx="40" ry="62" transform="rotate(-62 46 262)" fill="url(#lobe-dark)" />
+                <ellipse data-hf-id="hf-2fy9" cx="474" cy="262" rx="40" ry="62" transform="rotate(62 474 262)" fill="url(#lobe-dark)" />
+                <ellipse data-hf-id="hf-qtva" cx="104" cy="196" rx="52" ry="92" transform="rotate(-46 104 196)" fill="url(#lobe-dark)" />
+                <ellipse data-hf-id="hf-g5mf" cx="416" cy="196" rx="52" ry="92" transform="rotate(46 416 196)" fill="url(#lobe-dark)" />
+                <ellipse data-hf-id="hf-w2mp" cx="178" cy="150" rx="60" ry="112" transform="rotate(-24 178 150)" fill="url(#lobe)" />
+                <ellipse data-hf-id="hf-4plw" cx="342" cy="150" rx="60" ry="112" transform="rotate(24 342 150)" fill="url(#lobe)" />
+                <ellipse data-hf-id="hf-mo16" cx="260" cy="136" rx="66" ry="120" fill="url(#lobe)" />
+              </g>
+              <path data-hf-id="hf-c6pr" d="M28 288 C 14 150, 150 44, 260 44 C 370 44, 506 150, 492 288 C 452 292, 392 222, 260 220 C 128 222, 68 292, 28 288 Z" fill="none" stroke="#6e300c" stroke-opacity="0.55" stroke-width="3" stroke-linejoin="round" />
+              <g data-hf-id="hf-h9h0" fill="none" stroke="#fff3d6" stroke-opacity="0.6" stroke-width="7" stroke-linecap="round">
+                <path data-hf-id="hf-uw77" d="M232 70 Q 248 56 272 56" />
+                <path data-hf-id="hf-r16c" d="M150 94 Q 162 80 182 76" />
+                <path data-hf-id="hf-1al6" d="M348 84 Q 366 80 382 92" />
+                <path data-hf-id="hf-36n2" d="M78 168 Q 86 152 102 146" />
+              </g>
+              <g data-hf-id="hf-od02" fill="#ffe7b3" fill-opacity="0.85">
+                <circle data-hf-id="hf-t0m1" cx="292" cy="96" r="5" />
+                <circle data-hf-id="hf-9l3i" cx="304" cy="116" r="3" />
+                <circle data-hf-id="hf-oetv" cx="206" cy="128" r="3.5" />
+                <circle data-hf-id="hf-0f4l" cx="398" cy="150" r="3" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div data-hf-id="hf-6jdb" id="s2-crumbs"></div>
+        <div data-hf-id="hf-4qre" class="s2-right">
+          <div data-hf-id="hf-1sra" class="label" id="s2-label"><span data-hf-id="hf-xq5d" class="rule" id="s2-rule"></span><span data-hf-id="hf-o2a1" id="s2-label-txt">01 — Viennoiseries</span></div>
+          <div data-hf-id="hf-cu2z" id="s2-slot">
+            <div data-hf-id="hf-csxq" class="word" id="s2-w1">Croustillant.</div>
+            <div data-hf-id="hf-gioi" class="word it" id="s2-w2">Doré.</div>
+            <div data-hf-id="hf-opl0" class="word" id="s2-w3">Fondant.</div>
+          </div>
+          <div data-hf-id="hf-895q" class="ticks">
+            <span data-hf-id="hf-coyi" class="tick"><i data-hf-id="hf-d02u" id="s2-t1"></i></span>
+            <span data-hf-id="hf-ptha" class="tick"><i data-hf-id="hf-91yt" id="s2-t2"></i></span>
+            <span data-hf-id="hf-q7sb" class="tick"><i data-hf-id="hf-8ab0" id="s2-t3"></i></span>
+          </div>
+          <div data-hf-id="hf-55uq" id="s2-sub" class="mono">Feuilletage maison · Pur beurre</div>
+        </div>
+      </div>
+
+      <!-- ============ S3 · La fournée du jour ============ -->
+      <div data-hf-id="hf-tsq0" id="s3" class="scene">
+        <div data-hf-id="hf-6tqo" class="s3-top">
+          <div data-hf-id="hf-wwom" class="label"><span data-hf-id="hf-p2d6" class="rule" id="s3-rule"></span><span data-hf-id="hf-re6e" id="s3-label-txt">02 — La fournée du jour</span></div>
+          <div data-hf-id="hf-p7jo" id="s3-counter">
+            <span data-hf-id="hf-g4a3" class="ticker"><span data-hf-id="hf-lx3r" id="s3-tick-col"><span data-hf-id="hf-p81i">01</span><span data-hf-id="hf-pmcj">02</span><span data-hf-id="hf-q0nk">03</span></span></span>
+            <span data-hf-id="hf-mfiz">/ 03</span>
+          </div>
+        </div>
+        <div data-hf-id="hf-pw71" id="s3-track">
+          <section data-hf-id="hf-tjlg" class="station" id="st1">
+            <div data-hf-id="hf-ycrw" class="plate-ring" id="st1-ring"></div>
+            <div data-hf-id="hf-exqb" class="plate" id="st1-plate"></div>
+            <div data-hf-id="hf-i77d" class="illus" id="st1-illus">
+              <svg data-hf-id="hf-zey9" viewBox="0 0 920 520">
+                <defs data-hf-id="hf-vl9d">
+                  <lineargradient data-hf-id="hf-ws3y" id="bag" x1="0" y1="0" x2="0" y2="1">
+                    <stop data-hf-id="hf-csop" offset="0" stop-color="#f3bb66" />
+                    <stop data-hf-id="hf-4rj2" offset="0.55" stop-color="#d0822f" />
+                    <stop data-hf-id="hf-zv44" offset="1" stop-color="#8a3f12" />
+                  </lineargradient>
+                </defs>
+                <g data-hf-id="hf-r4ik" transform="rotate(-14 460 260)">
+                  <ellipse data-hf-id="hf-8vli" cx="470" cy="352" rx="400" ry="26" fill="#2a170d" fill-opacity="0.18" />
+                  <rect data-hf-id="hf-b4id" x="40" y="200" width="840" height="130" rx="65" fill="url(#bag)" stroke="#7a3510" stroke-opacity="0.5" stroke-width="3" />
+                  <g data-hf-id="hf-65b7" fill="#f7d79a" stroke="#a5521a" stroke-opacity="0.6" stroke-width="3">
+                    <ellipse data-hf-id="hf-0uqv" cx="170" cy="250" rx="62" ry="15" transform="rotate(-16 170 250)" />
+                    <ellipse data-hf-id="hf-q4kl" cx="310" cy="248" rx="62" ry="15" transform="rotate(-16 310 248)" />
+                    <ellipse data-hf-id="hf-q58h" cx="450" cy="246" rx="62" ry="15" transform="rotate(-16 450 246)" />
+                    <ellipse data-hf-id="hf-uwcd" cx="590" cy="246" rx="62" ry="15" transform="rotate(-16 590 246)" />
+                    <ellipse data-hf-id="hf-9nvl" cx="730" cy="248" rx="62" ry="15" transform="rotate(-16 730 248)" />
+                  </g>
+                  <path data-hf-id="hf-x7ka" d="M110 222 Q 460 196 820 222" fill="none" stroke="#fff1d0" stroke-opacity="0.45" stroke-width="7" stroke-linecap="round" />
+                </g>
+              </svg>
+            </div>
+            <div data-hf-id="hf-2qhj" class="st-text" id="st1-text">
+              <div data-hf-id="hf-z7yu" class="st-num">N°01 — Baguette</div>
+              <div data-hf-id="hf-9g7i" class="st-pre">La</div>
+              <div data-hf-id="hf-eb6x" class="st-name">Tradition</div>
+              <div data-hf-id="hf-z06l" class="st-desc mono">Croûte craquante · mie alvéolée</div>
+            </div>
+          </section>
+          <section data-hf-id="hf-27hb" class="station" id="st2">
+            <div data-hf-id="hf-e5pl" class="plate-ring" id="st2-ring"></div>
+            <div data-hf-id="hf-zg08" class="plate" id="st2-plate"></div>
+            <div data-hf-id="hf-90h6" class="illus" id="st2-illus">
+              <svg data-hf-id="hf-p8it" viewBox="0 0 920 520">
+                <defs data-hf-id="hf-ws6g">
+                  <radialgradient data-hf-id="hf-rfrg" id="boule" cx="0.42" cy="0.3" r="0.85">
+                    <stop data-hf-id="hf-issg" offset="0" stop-color="#e8a659" />
+                    <stop data-hf-id="hf-sufc" offset="0.5" stop-color="#b8662a" />
+                    <stop data-hf-id="hf-mpbx" offset="1" stop-color="#6b2e0e" />
+                  </radialgradient>
+                </defs>
+                <ellipse data-hf-id="hf-npg3" cx="460" cy="448" rx="300" ry="26" fill="#2a170d" fill-opacity="0.2" />
+                <path data-hf-id="hf-3soo" d="M170 420 C 150 250, 280 120, 460 120 C 640 120, 770 250, 750 420 C 650 452, 270 452, 170 420 Z" fill="url(#boule)" stroke="#5e280b" stroke-opacity="0.5" stroke-width="3" />
+                <g data-hf-id="hf-2poy" fill="none" stroke="#f6e3bd" stroke-width="16" stroke-linecap="round" stroke-opacity="0.9">
+                  <path data-hf-id="hf-hgct" d="M300 230 Q 380 180 470 200" />
+                  <path data-hf-id="hf-m2nu" d="M280 300 Q 400 240 540 260" />
+                  <path data-hf-id="hf-wt16" d="M310 370 Q 440 310 600 330" />
+                  <path data-hf-id="hf-tue8" d="M520 190 Q 590 200 630 240" />
+                </g>
+                <g data-hf-id="hf-vefq" id="flour" fill="#fbf1de" />
+              </svg>
+            </div>
+            <div data-hf-id="hf-u3ga" class="st-text" id="st2-text">
+              <div data-hf-id="hf-hevd" class="st-num">N°02 — Pain au levain</div>
+              <div data-hf-id="hf-7uze" class="st-pre">Le</div>
+              <div data-hf-id="hf-9ryj" class="st-name">Campagne</div>
+              <div data-hf-id="hf-6w0e" class="st-desc mono">Levain naturel · longue pousse</div>
+            </div>
+          </section>
+          <section data-hf-id="hf-y9da" class="station" id="st3">
+            <div data-hf-id="hf-pvxi" class="plate-ring" id="st3-ring"></div>
+            <div data-hf-id="hf-uvp1" class="plate" id="st3-plate"></div>
+            <div data-hf-id="hf-ds9f" class="illus" id="st3-illus">
+              <svg data-hf-id="hf-qffw" viewBox="0 0 920 520">
+                <defs data-hf-id="hf-wdvf">
+                  <lineargradient data-hf-id="hf-oqds" id="pac" x1="0" y1="0" x2="0" y2="1">
+                    <stop data-hf-id="hf-o5c2" offset="0" stop-color="#f6c072" />
+                    <stop data-hf-id="hf-8jyq" offset="0.5" stop-color="#d98a36" />
+                    <stop data-hf-id="hf-n5r8" offset="1" stop-color="#93451a" />
+                  </lineargradient>
+                </defs>
+                <ellipse data-hf-id="hf-vtk3" cx="460" cy="420" rx="300" ry="24" fill="#2a170d" fill-opacity="0.2" />
+                <rect data-hf-id="hf-7r1w" x="150" y="270" width="80" height="58" rx="18" fill="#3a1a0c" />
+                <rect data-hf-id="hf-02zu" x="690" y="262" width="80" height="58" rx="18" fill="#3a1a0c" />
+                <rect data-hf-id="hf-md9j" x="190" y="170" width="540" height="240" rx="80" fill="url(#pac)" stroke="#7a3510" stroke-opacity="0.5" stroke-width="3" />
+                <g data-hf-id="hf-c781" fill="none" stroke="#8a3f12" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round">
+                  <path data-hf-id="hf-w7oa" d="M230 250 Q 460 226 690 250" />
+                  <path data-hf-id="hf-3ha7" d="M220 300 Q 460 280 700 300" />
+                  <path data-hf-id="hf-7pyl" d="M228 350 Q 460 334 694 350" />
+                </g>
+                <path data-hf-id="hf-j1ym" d="M260 200 Q 460 180 660 200" fill="none" stroke="#fff1d0" stroke-opacity="0.55" stroke-width="9" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div data-hf-id="hf-tvad" class="st-text" id="st3-text">
+              <div data-hf-id="hf-i0cb" class="st-num">N°03 — Viennoiserie</div>
+              <div data-hf-id="hf-36pp" class="st-pre">Pain au</div>
+              <div data-hf-id="hf-nqpk" class="st-name">chocolat</div>
+              <div data-hf-id="hf-dbkd" class="st-desc mono">(ou chocolatine, on ne juge pas)</div>
+            </div>
+          </section>
+        </div>
+        <div data-hf-id="hf-fqk1" id="s3-progress"><i data-hf-id="hf-gzf7" id="s3-bar"></i></div>
+      </div>
+
+      <!-- ============ S4 · Promesse ============ -->
+      <div data-hf-id="hf-pulz" id="s4" class="scene">
+        <div data-hf-id="hf-eew1" id="s4-rays" data-layout-allow-overflow=""></div>
+        <div data-hf-id="hf-sfw9" id="s4-glow" data-layout-allow-overflow=""></div>
+        <div data-hf-id="hf-wyx5" class="s4-left">
+          <div data-hf-id="hf-i9r0" class="label" id="s4-label"><span data-hf-id="hf-md43" class="rule" id="s4-rule"></span><span data-hf-id="hf-6qje" id="s4-label-txt">03 — Notre promesse</span></div>
+          <div data-hf-id="hf-8dwl" id="s4-big"><span data-hf-id="hf-7cvv" id="s4-num">100</span><span data-hf-id="hf-ukxk" id="s4-pct">%</span></div>
+        </div>
+        <div data-hf-id="hf-kgac" class="s4-right">
+          <div data-hf-id="hf-j4uu" class="fm-line"><span data-hf-id="hf-oyco" id="s4-fm">fait maison.</span></div>
+          <svg data-hf-id="hf-zr4s" id="s4-swash" viewBox="0 0 560 40">
+            <path data-hf-id="hf-33gl" id="s4-swash-path" d="M6 26 C 120 6, 260 6, 380 18 S 520 34, 552 12" fill="none" stroke="#2a170d" stroke-width="7" stroke-linecap="round" />
+          </svg>
+          <ul data-hf-id="hf-6ppj" class="checks">
+            <li data-hf-id="hf-u9pf" id="s4-c1"><span data-hf-id="hf-qbaf" class="chk"><svg data-hf-id="hf-u3w7" viewBox="0 0 30 30"><path data-hf-id="hf-6nfj" d="M6 16 L12 22 L24 8" fill="none" stroke="#e8a93c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span data-hf-id="hf-rn0l" class="chk-txt">Pétri sur place</span></li>
+            <li data-hf-id="hf-lltk" id="s4-c2"><span data-hf-id="hf-vuiv" class="chk"><svg data-hf-id="hf-3l13" viewBox="0 0 30 30"><path data-hf-id="hf-cihr" d="M6 16 L12 22 L24 8" fill="none" stroke="#e8a93c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span data-hf-id="hf-zkoh" class="chk-txt">Cuit chaque matin</span></li>
+            <li data-hf-id="hf-mdhd" id="s4-c3"><span data-hf-id="hf-vg7u" class="chk"><svg data-hf-id="hf-36q2" viewBox="0 0 30 30"><path data-hf-id="hf-c46q" d="M6 16 L12 22 L24 8" fill="none" stroke="#e8a93c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span data-hf-id="hf-q8hd" class="chk-txt">Farines sélectionnées</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ============ S5 · CTA ============ -->
+      <div data-hf-id="hf-lwhy" id="s5" class="scene">
+        <div data-hf-id="hf-fd7i" id="s5-rays" data-layout-allow-overflow=""></div>
+        <div data-hf-id="hf-vvtu" id="s5-glow" data-layout-allow-overflow=""></div>
+        <div data-hf-id="hf-zzsa" class="s5-center">
+          <div data-hf-id="hf-22bg" id="s5-emblem">
+            <svg data-hf-id="hf-8tnt" viewBox="0 0 170 170">
+              <defs data-hf-id="hf-ueca">
+                <path data-hf-id="hf-m387" id="ringpath" d="M85 85 m -64 0 a 64 64 0 1 1 128 0 a 64 64 0 1 1 -128 0" />
+              </defs>
+              <circle data-hf-id="hf-uuxi" cx="85" cy="85" r="82" fill="none" stroke="#e8a93c" stroke-width="3" />
+              <circle data-hf-id="hf-bhmc" cx="85" cy="85" r="46" fill="none" stroke="#e8a93c" stroke-width="2.5" />
+              <g data-hf-id="hf-95w3" id="s5-ringtext">
+                <text data-hf-id="hf-p4hi" font-family="IBM Plex Mono" font-weight="700" font-size="13.5" letter-spacing="3.2" fill="#f4eadb">
+                  <textpath data-hf-id="hf-7c36" href="#ringpath">BOULANGERIE ✦ ARTISANALE ✦ FAIT MAIN ✦</textpath>
+                </text>
+              </g>
+              <g data-hf-id="hf-yzi3" transform="translate(85 85)">
+                <path data-hf-id="hf-ql89" d="M0 34 L0 -30" stroke="#e8a93c" stroke-width="4" stroke-linecap="round" />
+                <g data-hf-id="hf-yla5" fill="#e8a93c">
+                  <ellipse data-hf-id="hf-dz0o" cx="0" cy="-30" rx="5" ry="10" />
+                  <ellipse data-hf-id="hf-v5kp" cx="-7" cy="-16" rx="5" ry="10" transform="rotate(-30 -7 -16)" />
+                  <ellipse data-hf-id="hf-zf8y" cx="7" cy="-16" rx="5" ry="10" transform="rotate(30 7 -16)" />
+                  <ellipse data-hf-id="hf-jpn7" cx="-7" cy="-2" rx="5" ry="10" transform="rotate(-30 -7 -2)" />
+                  <ellipse data-hf-id="hf-dpkg" cx="7" cy="-2" rx="5" ry="10" transform="rotate(30 7 -2)" />
+                  <ellipse data-hf-id="hf-61sz" cx="-7" cy="12" rx="5" ry="10" transform="rotate(-30 -7 12)" />
+                  <ellipse data-hf-id="hf-tc9s" cx="7" cy="12" rx="5" ry="10" transform="rotate(30 7 12)" />
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div data-hf-id="hf-nso3" id="s5-name">Maison Dorée</div>
+          <div data-hf-id="hf-jtjg" id="s5-kicker" class="mono">Boulangerie — Pâtisserie</div>
+          <div data-hf-id="hf-w2nu" id="s5-tag">Le bon pain, chaque matin.</div>
+          <div data-hf-id="hf-466v" class="cta-wrap">
+            <div data-hf-id="hf-qbh0" id="s5-cta">
+              <span data-hf-id="hf-jlow" id="s5-cta-txt">Commander en ligne</span>
+              <svg data-hf-id="hf-1piz" id="s5-arrow" viewBox="0 0 46 46"><path data-hf-id="hf-4nlk" d="M8 23 H36 M24 11 L36 23 L24 35" fill="none" stroke="#2a170d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <i data-hf-id="hf-p0am" id="s5-shine" data-layout-allow-overflow=""></i>
+            </div>
+            <div data-hf-id="hf-vxv4" id="s5-ripple"></div>
+            <svg data-hf-id="hf-52hz" id="s5-cursor" viewBox="0 0 54 64">
+              <path data-hf-id="hf-bpoi" d="M6 4 L6 52 L18 41 L27 60 L35 56 L26 38 L42 38 Z" fill="#f4eadb" stroke="#2a170d" stroke-width="3.5" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div data-hf-id="hf-lv2k" id="s5-info" class="mono">maison-doree.fr · Ouvert 7j/7 dès 6h30</div>
+        </div>
+      </div>
+
+      <!-- ============ Transition overlays ============ -->
+      <div data-hf-id="hf-b4ce" id="iris-a"></div>
+      <div data-hf-id="hf-7ms7" id="leak-warm" data-layout-allow-overflow="" class="leak"></div>
+      <div data-hf-id="hf-cw35" id="leak-1" data-layout-allow-overflow="" class="leak"></div>
+      <div data-hf-id="hf-gu76" id="leak-2" data-layout-allow-overflow="" class="leak"></div>
+      <div data-hf-id="hf-5ix5" id="blk1" class="blk"></div>
+      <div data-hf-id="hf-9h16" id="blk2" class="blk"></div>
+      <div data-hf-id="hf-df57" id="blk3" class="blk"></div>
+
+      <!-- Film grain (static, deterministic) -->
+      <svg data-hf-id="hf-00en" id="grain" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <filter data-hf-id="hf-qgcy" id="noise" x="0" y="0" width="100%" height="100%">
+          <feturbulence data-hf-id="hf-yxii" type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch" />
+          <fecolormatrix data-hf-id="hf-skw8" type="saturate" values="0" />
+        </filter>
+        <rect data-hf-id="hf-gbey" width="1920" height="1080" filter="url(#noise)" />
+      </svg>
+
+      <!-- ============ Sound design ============ -->
+      <audio data-hf-id="hf-zsko" id="sfx-in" src="assets/sfx/whoosh-short.mp3" data-start="0.1" data-duration="0.57" data-track-index="10" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-7r6n" id="sfx-dot" src="assets/sfx/pop.mp3" data-start="1.33" data-duration="0.72" data-track-index="11" data-volume="0.55"></audio>
+      <audio data-hf-id="hf-8wx0" id="sfx-iris" src="assets/sfx/whoosh.mp3" data-start="2.62" data-duration="0.57" data-track-index="10" data-volume="0.85"></audio>
+      <audio data-hf-id="hf-4e85" id="sfx-crois" src="assets/sfx/impact-bass-1.mp3" data-start="3.0" data-duration="2.12" data-track-index="12" data-volume="0.7"></audio>
+      <audio data-hf-id="hf-05ad" id="sfx-w1" src="assets/sfx/whoosh-short.mp3" data-start="3.16" data-duration="0.57" data-track-index="11" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-zmvc" id="sfx-w2" src="assets/sfx/whoosh-short.mp3" data-start="4.06" data-duration="0.57" data-track-index="11" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-llf9" id="sfx-w3" src="assets/sfx/whoosh-short.mp3" data-start="4.91" data-duration="0.57" data-track-index="11" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-bz7t" id="sfx-whip" src="assets/sfx/whoosh.mp3" data-start="5.9" data-duration="0.57" data-track-index="10" data-volume="0.85"></audio>
+      <audio data-hf-id="hf-miy2" id="sfx-pan1" src="assets/sfx/whoosh-short.mp3" data-start="7.33" data-duration="0.57" data-track-index="11" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-uq2u" id="sfx-pan2" src="assets/sfx/whoosh-short.mp3" data-start="8.33" data-duration="0.57" data-track-index="11" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-jtve" id="sfx-riser" src="assets/sfx/riser.mp3" data-start="7.4" data-media-start="7.83" data-duration="2.2" data-track-index="13" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-yte1" id="sfx-leak" src="assets/sfx/sparkle.mp3" data-start="9.4" data-duration="1.8" data-track-index="10" data-volume="0.55"></audio>
+      <audio data-hf-id="hf-hzq7" id="sfx-c1" src="assets/sfx/pop.mp3" data-start="10.25" data-duration="0.72" data-track-index="11" data-volume="0.35"></audio>
+      <audio data-hf-id="hf-vhij" id="sfx-c2" src="assets/sfx/pop.mp3" data-start="10.45" data-duration="0.72" data-track-index="12" data-volume="0.35"></audio>
+      <audio data-hf-id="hf-jae3" id="sfx-c3" src="assets/sfx/pop.mp3" data-start="10.65" data-duration="0.72" data-track-index="13" data-volume="0.35"></audio>
+      <audio data-hf-id="hf-alzv" id="sfx-blocks" src="assets/sfx/whoosh.mp3" data-start="11.4" data-duration="0.57" data-track-index="10" data-volume="0.85"></audio>
+      <audio data-hf-id="hf-tjvh" id="sfx-logo" src="assets/sfx/impact-bass-1.mp3" data-start="12.22" data-duration="2.12" data-track-index="12" data-volume="0.8"></audio>
+      <audio data-hf-id="hf-1538" id="sfx-cta" src="assets/sfx/pop.mp3" data-start="13.05" data-duration="0.72" data-track-index="11" data-volume="0.6"></audio>
+      <audio data-hf-id="hf-6q43" id="sfx-shine" src="assets/sfx/sparkle.mp3" data-start="13.45" data-duration="1.55" data-track-index="10" data-volume="0.4"></audio>
+      <audio data-hf-id="hf-in9k" id="sfx-click" src="assets/sfx/click.mp3" data-start="14.1" data-duration="0.37" data-track-index="11" data-volume="0.9"></audio>
+      <audio data-hf-id="hf-864u" id="sfx-chime" src="assets/sfx/chime.mp3" data-start="14.15" data-duration="0.85" data-track-index="13" data-volume="0.5"></audio>
+    </div>
+
+    <script>
+      (function () {
+        // ---------- deterministic helpers ----------
+        function mulberry32(a) {
+          return function () {
+            a |= 0;
+            a = (a + 0x6d2b79f5) | 0;
+            var t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        function offsetIn(el, ancestor) {
+          var x = 0,
+            y = 0;
+          while (el && el !== ancestor) {
+            x += el.offsetLeft;
+            y += el.offsetTop;
+            el = el.offsetParent;
+          }
+          return { x: x, y: y };
+        }
+        var SVGNS = "http://www.w3.org/2000/svg";
+
+        // ---------- variables ----------
+        var vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+        var brand = vars.brand || "Maison Dorée";
+        var ctaText = vars.cta || "Commander en ligne";
+        var info = vars.info || "maison-doree.fr  ·  Ouvert 7j/7 dès 6h30";
+        document.getElementById("s1-brand").textContent = brand;
+        document.getElementById("s5-cta-txt").textContent = ctaText;
+        document.getElementById("s5-info").textContent = info;
+        var nameEl = document.getElementById("s5-name");
+        nameEl.textContent = "";
+        Array.from(brand).forEach(function (c) {
+          var s = document.createElement("span");
+          s.className = "ch";
+          s.textContent = c === " " ? " " : c;
+          nameEl.appendChild(s);
+        });
+
+        // ---------- build wheat ears (S1) ----------
+        var wheatHost = document.getElementById("s1-wheat");
+        var EARS = [
+          { rot: -17, dx: -150, scale: 0.92 },
+          { rot: 13, dx: 150, scale: 0.86 },
+          { rot: -2, dx: 0, scale: 1.05 },
+        ];
+        EARS.forEach(function (e, i) {
+          var outer = document.createElement("div");
+          outer.className = "ear";
+          outer.style.left = 180 + e.dx + "px";
+          outer.style.transform = "rotate(" + e.rot + "deg) scale(" + e.scale + ")";
+          var inner = document.createElement("div");
+          inner.className = "ear-in";
+          inner.id = "ear-" + i;
+          var g = "";
+          g += '<path class="stem" d="M80 640 C 82 520, 76 360, 80 170" fill="none" stroke="#b5762f" stroke-width="7" stroke-linecap="round"/>';
+          var grains = '<ellipse class="grain" cx="80" cy="96" rx="15" ry="34" fill="url(#gr)" stroke="#8a5220" stroke-width="2.5"/>';
+          var awns = '<path class="awn" d="M80 64 L80 6" />';
+          for (var k = 0; k < 8; k++) {
+            var y = 150 + k * 42;
+            grains += '<ellipse class="grain" cx="64" cy="' + y + '" rx="15" ry="34" transform="rotate(-28 64 ' + y + ')" fill="url(#gr)" stroke="#8a5220" stroke-width="2.5"/>';
+            grains += '<ellipse class="grain" cx="96" cy="' + y + '" rx="15" ry="34" transform="rotate(28 96 ' + y + ')" fill="url(#gr)" stroke="#8a5220" stroke-width="2.5"/>';
+            if (k < 5) {
+              awns += '<path class="awn" d="M54 ' + (y - 26) + " L" + (18 - k * 2) + " " + (y - 86) + '" />';
+              awns += '<path class="awn" d="M106 ' + (y - 26) + " L" + (142 + k * 2) + " " + (y - 86) + '" />';
+            }
+          }
+          inner.innerHTML =
+            '<svg viewBox="0 0 160 640"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1c06a"/><stop offset="1" stop-color="#c27a2c"/></linearGradient></defs>' +
+            g +
+            '<g fill="none" stroke="#c88a3a" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.8">' +
+            awns +
+            "</g>" +
+            grains +
+            "</svg>";
+          outer.appendChild(inner);
+          wheatHost.appendChild(outer);
+        });
+
+        // ---------- flour dusting (S3 · campagne) ----------
+        var flour = document.getElementById("flour");
+        var rf = mulberry32(42);
+        for (var f = 0; f < 70; f++) {
+          var a = rf() * Math.PI;
+          var rr = rf();
+          var cx = 460 + Math.cos(a) * 270 * rr * (rf() > 0.5 ? 1 : -1);
+          var cy = 140 + rf() * 200;
+          var c = document.createElementNS(SVGNS, "circle");
+          c.setAttribute("cx", cx.toFixed(1));
+          c.setAttribute("cy", (cy + Math.abs(cx - 460) * 0.25).toFixed(1));
+          c.setAttribute("r", (1.5 + rf() * 3.5).toFixed(1));
+          c.setAttribute("fill-opacity", (0.35 + rf() * 0.5).toFixed(2));
+          flour.appendChild(c);
+        }
+
+        // ---------- crumbs (S2) ----------
+        var crumbHost = document.getElementById("s2-crumbs");
+        var rc = mulberry32(7);
+        var CRUMBS = [];
+        for (var j = 0; j < 22; j++) {
+          var d = document.createElement("i");
+          d.className = "crumb";
+          var size = 6 + Math.round(rc() * 14);
+          d.style.width = size + "px";
+          d.style.height = Math.round(size * (0.7 + rc() * 0.3)) + "px";
+          d.style.left = -size / 2 + "px";
+          d.style.top = -size / 2 + "px";
+          d.style.background = rc() > 0.5 ? "#e8a93c" : "#c2611f";
+          crumbHost.appendChild(d);
+          var ang = -Math.PI * (0.05 + rc() * 0.9);
+          var dist = 240 + rc() * 300;
+          CRUMBS.push({ el: d, x: Math.cos(ang) * dist * 1.25, y: Math.sin(ang) * dist * 0.75, rot: (rc() - 0.5) * 540 });
+        }
+
+        function build() {
+          var root = document.getElementById("root");
+
+          // Iris origin = centre of the period after "vous" (measured before any tween touches layout).
+          var dot = document.getElementById("s1-dot");
+          var dp = offsetIn(dot, root);
+          var DOT = dot.offsetWidth;
+          var DX = dp.x + DOT / 2;
+          var DY = dp.y + DOT / 2;
+          var iris = document.getElementById("iris-a");
+          iris.style.width = DOT + "px";
+          iris.style.height = DOT + "px";
+          iris.style.left = dp.x + "px";
+          iris.style.top = dp.y + "px";
+          var IRIS_SCALE = Math.ceil((2 * 2300) / DOT);
+
+          var tl = gsap.timeline({ paused: true });
+
+          // Scene boundaries
+          var T1 = 2.7; // S1 → S2  dot iris
+          var T2 = 5.95; // S2 → S3  whip push
+          var P1 = 7.35; // station pan 1
+          var P2 = 8.35; // station pan 2
+          var T3 = 9.3; // S3 → S4  light leak
+          var T4 = 11.45; // S4 → S5  stacked blocks
+
+          // ================= S1 · Accroche =================
+          tl.fromTo("#s1-cam", { scale: 1 }, { scale: 1.045, duration: T1, ease: "sine.inOut" }, 0);
+          tl.fromTo("#s1-ghost", { x: 140 }, { x: -60, duration: T1 + 0.5, ease: "none" }, 0);
+          tl.fromTo("#s1-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 0.05);
+          tl.fromTo("#s1-label-txt", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.15);
+          tl.fromTo("#s1-brand", { opacity: 0, y: -18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.3);
+          tl.fromTo("#s1-l1", { yPercent: 115, rotation: 6 }, { yPercent: 0, rotation: 0, duration: 0.75, ease: "power4.out" }, 0.12);
+          tl.fromTo("#s1-l2", { yPercent: 115, rotation: 6 }, { yPercent: 0, rotation: 0, duration: 0.75, ease: "power4.out" }, 0.45);
+          tl.fromTo("#s1-l3", { yPercent: 115, rotation: 6 }, { yPercent: 0, rotation: 0, duration: 0.75, ease: "power4.out" }, 0.78);
+          tl.fromTo("#s1-dot", { scale: 0 }, { scale: 1, duration: 0.5, ease: "back.out(3.5)" }, 1.33);
+          tl.fromTo("#s1-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 1.2);
+
+          // wheat: stems draw, grains pop bottom→top, then sway
+          var stems = document.querySelectorAll("#s1-wheat .stem");
+          stems.forEach(function (s, i) {
+            var len = s.getTotalLength();
+            tl.fromTo(s, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, 0.15 + i * 0.12);
+          });
+          for (var e = 0; e < 3; e++) {
+            var grains = Array.from(document.querySelectorAll("#ear-" + e + " .grain")).reverse();
+            tl.fromTo(grains, { scale: 0, transformOrigin: "50% 100%" }, { scale: 1, duration: 0.4, ease: "back.out(2.2)", stagger: 0.025 }, 0.45 + e * 0.1);
+            tl.fromTo("#ear-" + e + " .awn", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.out" }, 0.95 + e * 0.1);
+            tl.fromTo("#ear-" + e, { rotation: -2.5 + e }, { rotation: 2.5 - e, duration: 1.1, ease: "sine.inOut", yoyo: true, repeat: 2 }, 0.2 + e * 0.15);
+          }
+          // steam
+          document.querySelectorAll("#s1-steam .wisp").forEach(function (w, i) {
+            tl.fromTo(w, { y: 60, opacity: 0 }, { y: -70, opacity: 1, duration: 1.3, ease: "sine.out", repeat: 1, yoyo: true }, 0.3 + i * 0.25);
+          });
+
+          // ================= T1 · dot iris =================
+          tl.fromTo("#s1-cam", { filter: "blur(0px)" }, { scale: 1.16, filter: "blur(5px)", duration: 0.5, ease: "power3.in", immediateRender: false }, T1);
+          tl.set("#iris-a", { opacity: 1 }, T1);
+          tl.set("#s1-dot", { opacity: 0 }, T1);
+          tl.fromTo("#iris-a", { scale: 1 }, { scale: IRIS_SCALE, duration: 0.55, ease: "power4.in" }, T1);
+          tl.set("#s2", { opacity: 1 }, T1 + 0.3);
+          tl.fromTo(
+            "#s2",
+            { clipPath: "circle(0px at " + DX + "px " + DY + "px)" },
+            { clipPath: "circle(2300px at " + DX + "px " + DY + "px)", duration: 0.75, ease: "power3.inOut" },
+            T1 + 0.3,
+          );
+          tl.set("#s1", { opacity: 0 }, T1 + 1.06);
+          tl.set("#iris-a", { opacity: 0 }, T1 + 1.06);
+          tl.set("#s2", { clipPath: "none" }, T1 + 1.06);
+
+          // ================= S2 · Viennoiseries =================
+          var S2 = T1 + 0.3;
+          tl.fromTo("#s2-glow", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.0, ease: "power2.out" }, S2);
+          tl.fromTo("#s2-glow", { scale: 1 }, { scale: 1.08, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 1, immediateRender: false }, S2 + 1.0);
+          tl.fromTo("#s2-ghost", { x: -120 }, { x: 80, duration: T2 - S2 + 0.5, ease: "none" }, S2);
+          tl.fromTo("#s2-ring", { scale: 0.7, rotation: -40, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, S2 + 0.1);
+          tl.to("#s2-ring", { rotation: 40, duration: T2 - S2 - 0.9, ease: "none" }, S2 + 1.0);
+          tl.fromTo(
+            "#s2-crois",
+            { scale: 0.3, rotation: -38, y: 240, opacity: 0 },
+            { scale: 1, rotation: 0, y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.5)" },
+            S2 - 0.05,
+          );
+          tl.fromTo("#s2-crois-float", { y: 0, rotation: 0 }, { y: -14, rotation: -1.5, duration: 0.85, ease: "sine.inOut", yoyo: true, repeat: 2 }, S2 + 0.75);
+          [4.1, 4.95].forEach(function (t) {
+            tl.fromTo("#s2-crois-float", { scale: 1 }, { scale: 1.045, duration: 0.11, ease: "power2.out", yoyo: true, repeat: 1, immediateRender: false }, t);
+          });
+          CRUMBS.forEach(function (c, i) {
+            tl.fromTo(c.el, { x: 0, y: 0, rotation: 0, opacity: 1, scale: 0.4 }, { x: c.x, y: c.y, rotation: c.rot, scale: 1, duration: 0.8, ease: "power3.out" }, S2 + 0.38 + (i % 5) * 0.012);
+            tl.to(c.el, { y: c.y + 140, opacity: 0, duration: 0.6, ease: "power2.in" }, S2 + 1.0 + (i % 5) * 0.02);
+          });
+          document.querySelectorAll("#s2-steam .wisp").forEach(function (w, i) {
+            tl.fromTo(w, { y: 70, opacity: 0 }, { y: -60, opacity: 1, duration: 1.2, ease: "sine.out", repeat: 1, yoyo: true }, S2 + 0.6 + i * 0.22);
+          });
+          tl.fromTo("#s2-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, S2 + 0.15);
+          tl.fromTo("#s2-label-txt", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, S2 + 0.25);
+          // word 1 — scale slam
+          var W1 = 3.2,
+            W2 = 4.1,
+            W3 = 4.95;
+          tl.fromTo("#s2-w1", { opacity: 0, scale: 1.7, filter: "blur(14px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.42, ease: "power4.out" }, W1);
+          tl.fromTo("#s2-t1", { scaleX: 0 }, { scaleX: 1, duration: W2 - W1, ease: "none" }, W1);
+          tl.to("#s2-w1", { opacity: 0, yPercent: -40, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, W2 - 0.08);
+          // word 2 — side snap
+          tl.fromTo("#s2-w2", { opacity: 0, x: 220, skewX: -18 }, { opacity: 1, x: 0, skewX: 0, duration: 0.45, ease: "power4.out" }, W2);
+          tl.fromTo("#s2-t2", { scaleX: 0 }, { scaleX: 1, duration: W3 - W2, ease: "none" }, W2);
+          tl.to("#s2-w2", { opacity: 0, x: -120, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, W3 - 0.08);
+          // word 3 — rise & rotate
+          tl.fromTo("#s2-w3", { opacity: 0, yPercent: 90, rotation: 9 }, { opacity: 1, yPercent: 0, rotation: 0, duration: 0.5, ease: "power4.out" }, W3);
+          tl.fromTo("#s2-t3", { scaleX: 0 }, { scaleX: 1, duration: T2 - W3, ease: "none" }, W3);
+          tl.fromTo("#s2-sub", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, W1 + 0.3);
+
+          // ================= T2 · whip push =================
+          tl.fromTo("#s2", { xPercent: 0, filter: "blur(0px)" }, { xPercent: -100, filter: "blur(16px)", duration: 0.5, ease: "power4.inOut", immediateRender: false }, T2);
+          tl.set("#s3", { opacity: 1 }, T2);
+          tl.fromTo("#s3", { xPercent: 100, filter: "blur(16px)" }, { xPercent: 0, filter: "blur(0px)", duration: 0.5, ease: "power4.inOut" }, T2);
+          tl.set("#s2", { opacity: 0 }, T2 + 0.5);
+
+          // ================= S3 · La fournée =================
+          var S3 = T2 + 0.3;
+          tl.fromTo("#s3-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, S3);
+          tl.fromTo("#s3-label-txt", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, S3 + 0.08);
+          tl.fromTo("#s3-counter", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, S3 + 0.12);
+          tl.fromTo("#s3-bar", { scaleX: 0 }, { scaleX: 1 / 3, duration: 0.6, ease: "power3.out" }, S3 + 0.1);
+
+          function stationIn(n, t) {
+            tl.fromTo("#st" + n + "-plate", { scale: 0.2 }, { scale: 1, duration: 0.7, ease: "back.out(1.4)" }, t);
+            tl.fromTo("#st" + n + "-ring", { scale: 0.6, rotation: -60, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, t + 0.05);
+            tl.fromTo("#st" + n + "-illus", { x: 360, rotation: 14, scale: 0.85 }, { x: 0, rotation: 0, scale: 1, duration: 0.75, ease: "power3.out" }, t);
+            tl.fromTo("#st" + n + "-text > div", { opacity: 0, x: 140 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out", stagger: 0.06 }, t + 0.08);
+            tl.fromTo("#st" + n + "-illus svg", { y: 0 }, { y: -12, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.7);
+          }
+          stationIn(1, T2 + 0.15);
+          // pan 1
+          tl.to("#s3-track", { x: -1920, duration: 0.6, ease: "power3.inOut" }, P1);
+          tl.to("#st1-illus", { x: -380, rotation: -10, duration: 0.6, ease: "power3.in" }, P1);
+          tl.to("#s3-tick-col", { y: -40, duration: 0.45, ease: "power3.inOut" }, P1 + 0.1);
+          tl.to("#s3-bar", { scaleX: 2 / 3, duration: 0.6, ease: "power3.inOut" }, P1);
+          stationIn(2, P1 + 0.12);
+          // pan 2
+          tl.to("#s3-track", { x: -3840, duration: 0.6, ease: "power3.inOut" }, P2);
+          tl.to("#st2-illus", { x: -380, rotation: -10, duration: 0.6, ease: "power3.in" }, P2);
+          tl.to("#s3-tick-col", { y: -80, duration: 0.45, ease: "power3.inOut" }, P2 + 0.1);
+          tl.to("#s3-bar", { scaleX: 1, duration: 0.6, ease: "power3.inOut" }, P2);
+          stationIn(3, P2 + 0.12);
+
+          // ================= T3 · light leak =================
+          tl.fromTo("#s3", { filter: "brightness(1) saturate(1)", scale: 1 }, { filter: "brightness(1.25) saturate(1.15)", scale: 1.04, duration: 0.42, ease: "power2.in", immediateRender: false }, T3);
+          tl.to("#leak-warm", { opacity: 0.5, duration: 0.3, ease: "power1.in" }, T3);
+          tl.fromTo("#leak-1", { opacity: 0, x: -700 }, { opacity: 0.95, x: 300, duration: 0.48, ease: "sine.inOut" }, T3 + 0.02);
+          tl.fromTo("#leak-2", { opacity: 0, x: 500 }, { opacity: 0.85, x: -200, duration: 0.44, ease: "sine.inOut" }, T3 + 0.06);
+          tl.to("#leak-warm", { opacity: 0.92, duration: 0.15, ease: "power2.in" }, T3 + 0.3);
+          tl.set("#s3", { opacity: 0 }, T3 + 0.45);
+          tl.set("#s4", { opacity: 1 }, T3 + 0.45);
+          tl.to("#leak-warm", { opacity: 0, duration: 0.45, ease: "power2.out" }, T3 + 0.48);
+          tl.to("#leak-1", { opacity: 0, x: 800, duration: 0.45, ease: "power1.out" }, T3 + 0.5);
+          tl.to("#leak-2", { opacity: 0, x: -600, duration: 0.5, ease: "power1.out" }, T3 + 0.5);
+
+          // ================= S4 · Promesse =================
+          var S4 = T3 + 0.45;
+          tl.fromTo("#s4-rays", { rotation: 0, scale: 1.15 }, { rotation: 32, scale: 1, duration: T4 - S4 + 0.6, ease: "none" }, S4 - 0.1);
+          tl.fromTo("#s4-glow", { scale: 0.8 }, { scale: 1.1, duration: T4 - S4, ease: "sine.inOut" }, S4);
+          tl.fromTo("#s4-big", { scale: 0.82, y: 40 }, { scale: 1, y: 0, duration: 0.7, ease: "power3.out" }, S4);
+          var counter = { v: 0 };
+          var numEl = document.getElementById("s4-num");
+          tl.fromTo(
+            counter,
+            { v: 0 },
+            {
+              v: 100,
+              duration: 1.0,
+              ease: "power2.out",
+              onUpdate: function () {
+                numEl.textContent = String(Math.round(counter.v));
+              },
+            },
+            S4 + 0.05,
+          );
+          tl.fromTo("#s4-big", { scale: 1 }, { scale: 1.06, duration: 0.12, ease: "power2.out", yoyo: true, repeat: 1, immediateRender: false }, S4 + 1.05);
+          tl.fromTo("#s4-pct", { opacity: 0, x: -40, rotation: -12 }, { opacity: 1, x: 0, rotation: 0, duration: 0.5, ease: "back.out(2)" }, S4 + 0.2);
+          tl.fromTo("#s4-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, S4 + 0.1);
+          tl.fromTo("#s4-label-txt", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, S4 + 0.18);
+          tl.fromTo("#s4-fm", { yPercent: 110 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, S4 + 0.2);
+          var sw = document.getElementById("s4-swash-path");
+          var swl = sw.getTotalLength();
+          tl.fromTo(sw, { strokeDasharray: swl, strokeDashoffset: swl }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.inOut" }, S4 + 0.5);
+          ["#s4-c1", "#s4-c2", "#s4-c3"].forEach(function (id, i) {
+            var t = 10.25 + i * 0.2;
+            tl.fromTo(id + " .chk", { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.45, ease: "back.out(2.6)" }, t);
+            tl.fromTo(id + " .chk-txt", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, t + 0.05);
+          });
+
+          // ================= T4 · stacked blocks =================
+          tl.to("#s4", { y: -140, scale: 0.95, duration: 0.6, ease: "power3.in" }, T4);
+          ["#blk1", "#blk2", "#blk3"].forEach(function (b, i) {
+            tl.fromTo(b, { yPercent: 100 }, { yPercent: 0, duration: 0.5, ease: "power4.inOut" }, T4 + i * 0.08);
+          });
+          var COVER = T4 + 0.16 + 0.5;
+          tl.set("#s4", { opacity: 0 }, COVER);
+          tl.set("#s5", { opacity: 1 }, COVER);
+          tl.set(["#blk1", "#blk2"], { opacity: 0 }, COVER);
+          tl.to("#blk3", { yPercent: -100, duration: 0.6, ease: "power4.inOut" }, COVER);
+
+          // ================= S5 · CTA =================
+          var S5 = COVER;
+          tl.fromTo("#s5-glow", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.0, ease: "power2.out" }, S5);
+          tl.fromTo("#s5-rays", { rotation: -10 }, { rotation: 18, duration: 15 - S5, ease: "none" }, S5);
+          tl.fromTo("#s5-emblem", { scale: 0, rotation: -140 }, { scale: 1, rotation: 0, duration: 0.75, ease: "back.out(1.6)" }, S5 + 0.1);
+          tl.fromTo("#s5-ringtext", { rotation: 0, svgOrigin: "85 85" }, { rotation: 120, svgOrigin: "85 85", duration: 15 - S5, ease: "none" }, S5);
+          tl.fromTo("#s5-name .ch", { yPercent: 105, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: "power4.out", stagger: 0.03 }, S5 + 0.22);
+          tl.fromTo("#s5-kicker", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, S5 + 0.5);
+          tl.fromTo("#s5-tag", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, S5 + 0.68);
+          tl.fromTo("#s5-cta", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, ease: "back.out(2.2)" }, 13.0);
+          tl.fromTo("#s5-info", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 13.2);
+          tl.fromTo("#s5-shine", { x: -160 }, { x: 760, duration: 0.7, ease: "power2.inOut" }, 13.45);
+          // cursor approach + press
+          tl.fromTo("#s5-cursor", { x: 460, y: 300, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 13.45);
+          tl.to(["#s5-cta", "#s5-cursor"], { scale: 0.92, duration: 0.09, ease: "power2.in" }, 14.08);
+          tl.to(["#s5-cta", "#s5-cursor"], { scale: 1, duration: 0.4, ease: "back.out(3)" }, 14.17);
+          tl.fromTo("#s5-ripple", { scale: 0.3, opacity: 0.9 }, { scale: 3.4, opacity: 0, duration: 0.7, ease: "power2.out" }, 14.1);
+          tl.fromTo("#s5-arrow", { x: 0 }, { x: 10, duration: 0.25, ease: "sine.inOut", yoyo: true, repeat: 1 }, 14.35);
+
+          window.__timelines["main"] = tl;
+        }
+
+        Promise.all([document.fonts.load('900 100px "Fraunces"'), document.fonts.load('italic 400 100px "Fraunces"'), document.fonts.load('700 30px "IBM Plex Mono"')])
+          .catch(function () {})
+          .then(function () {
+            return document.fonts.ready;
+          })
+          .then(build);
+      })();
+    </script>
+  </body>
+</html>
